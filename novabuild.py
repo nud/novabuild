@@ -15,6 +15,7 @@ def usage():
     print '  list           list the available packages'
     print '  fetch          fetch the requested package'
     print '  fetchall       fetch all the packages'
+    print '  build          build a single package'
     print
     print 'Use ' + sys.argv[0] + ' [command] --help for more information.'
 
@@ -40,3 +41,9 @@ if sys.argv[1] == 'fetch':
 
 if sys.argv[1] == 'fetchall':
     commands.fetchall.main(argv)
+
+if sys.argv[1] == 'build':
+    commands.build.main(argv)
+
+if sys.argv[1] == 'shell':
+    commands.shell.main(argv)
