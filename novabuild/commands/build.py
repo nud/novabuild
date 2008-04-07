@@ -31,8 +31,17 @@ def build(chroot, moduleset, package):
     code = system('mkdir -p %s' % BUILD_ROOT)
     check_code(code, package)
 
-    code = system('tar xzf %s -C %s' % (TARBALL, BUILD_ROOT))
-    check_code(code, package)
+    if TARBALL.endswith('.tar.bz2'):
+        code = system('tar xjf %s -C %s' % (TARBALL, BUILD_ROOT))
+        check_code(code, package)
+    elif TARBALL.endswith('.tar.gz') or TARBALL.endswith('.tgz'):
+        code = system('tar xzf %s -C %s' % (TARBALL, BUILD_ROOT))
+        check_code(code, package)
+    elif TARBALL.endswith('.zip'):
+        code = system('unzip %s -d %s' % (TARBALL, BUILD_ROOT))
+        check_code(code, package)
+    else:
+        raise Exception("Cannot find the type of the archive.")
 
     # Kernel packages have to be handled specially.
     if package == 'linux':
@@ -43,6 +52,9 @@ def build(chroot, moduleset, package):
         check_code(code, package)
 
     else:
+        code = system('mv %s/* %s' % (BUILD_ROOT, BUILD_DIR))
+        check_code(code, package)
+
         code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))
         check_code(code, package)
 

@@ -20,7 +20,7 @@ def fetch(moduleset, package):
     source_type = moduleset.get(package, 'source-type')
 
     if source_type == 'wget':
-        code = system('wget -Nc %s -Ptarballs/' % moduleset.get(package, 'source'))
+        code = system('wget -Nc %s -Otarballs/%s' % (moduleset.get(package, 'source'), moduleset.get(package, 'basename')))
         check_code(code, package)
 
     elif source_type == 'svn':

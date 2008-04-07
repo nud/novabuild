@@ -33,7 +33,7 @@ class ModuleSetParser(ConfigParser):
             if option == 'name':
                 return section
             elif option == 'basename':
-                if self.get(section, 'source-type'):
+                if self.get(section, 'source-type') == 'svn':
                     return section + '-' + self.get(section, 'orig-version') + '.tar.gz'
                 else:
                     return os.path.basename(self.get(section, 'source'))
