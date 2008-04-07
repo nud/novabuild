@@ -3,7 +3,7 @@
 import os, sys
 import getopt
 from novabuild.run import system
-from novabuild.colours import blue
+from novabuild.colours import red, blue
 
 def usage():
     print sys.argv[0] + ' [--help] [--verbose] [--distro=distro] [--name=name]'
@@ -57,8 +57,11 @@ def main(argv):
     
     print blue("Setup the chroot in '%s'" % chroot_path)
     
-    system('debootstrap --variant=buildd %s %s %s' % (distro, chroot_path, debian_mirror))
-    
+    code = system('debootstrap --variant=buildd %s %s %s' % (distro, chroot_path, debian_mirror))
+    if code != 0:
+        print red("Cound not bootstrap the chroot.")
+        sys.exit(1)
+
     ########################################################################
     
     print blue("Configuring APT")
@@ -110,8 +113,11 @@ def main(argv):
         'kernel-package',
     )
     
-    system('schroot -c ' + chroot_name + ' -d /root -- apt-get -y -u install ' + ' '.join(to_install))
-    
+    code = system('schroot -c ' + chroot_name + ' -d /root -- apt-get -y -u install ' + ' '.join(to_install))
+    if code != 0:
+        print red("Cound not install the base packages in the chroot.")
+        sys.exit(1)
+
     ########################################################################
     
     print blue("Bootstraping done")
