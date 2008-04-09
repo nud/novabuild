@@ -6,4 +6,4 @@ import sys
 def main(argv):
     chroot = Chroot(argv[0])
 
-    sys.exit(chroot.system(''))
+    sys.exit(chroot.system('',))

@@ -53,7 +53,7 @@ def build(chroot, moduleset, package):
 
     else:
         code = system('mv %s/* %s' % (BUILD_ROOT, BUILD_DIR))
-        check_code(code, package)
+        #check_code(code, package)  FIXME: we don't want to fail when "cannot move to itself"
 
         code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))
         check_code(code, package)
