@@ -25,7 +25,7 @@ def build(chroot, moduleset, package):
     BUILD_DIR = os.path.join (BUILD_ROOT, '%s-%s' % (package, moduleset.get(package, 'version')))
     DEBIAN_DIR = os.path.join('debian', 'debian-%s' % package)
 
-    code = system('rm -rf %s' % BUILD_ROOT)
+    code = chroot.system('rm -rf /home/%s/tmp-build-dir' % chroot.user, root=True)
     check_code(code, package)
 
     code = system('mkdir -p %s' % BUILD_ROOT)
@@ -48,7 +48,8 @@ def build(chroot, moduleset, package):
         code = system('cp %s/config-%s-i386 %s/.config' % (DEBIAN_DIR, moduleset.get(package, 'version'), BUILD_DIR))
         check_code(code, package)
 
-        code = chroot.system('make-kpkg --revision=novacom.i386.3.0 kernel_image kernel_headers kernel_source', cwd='/root/tmp-build-dir')
+        code = chroot.system('make-kpkg --revision=novacom.i386.3.0 kernel_image kernel_headers kernel_source',
+                             cwd='/root/tmp-build-dir', root=True)
         check_code(code, package)
 
     else:
@@ -66,10 +67,11 @@ def build(chroot, moduleset, package):
 #           cp /tmp/changelog.tmp \$(DEBIAN_DIR)/debian-$pack_lowercase/changelog;
 #       fi;)
 
-        code = chroot.system('dpkg-buildpackage', cwd='/root/tmp-build-dir/%s-%s' % (package, moduleset.get(package, 'version')))
+        code = chroot.system('dpkg-buildpackage', root=True, cwd='/home/%s/tmp-build-dir/%s-%s'
+                             % (chroot.user, package, moduleset.get(package, 'version')))
         check_code(code, package)
 
-    code = system('mv %s/*.deb repository/' % BUILD_ROOT)
+    code = system('mv -f %s/*.deb repository/' % BUILD_ROOT)
 
 
 def main(argv):

@@ -11,8 +11,13 @@ class Chroot(object):
 
         self.root_dir = '/chroots/%s-%s' % (self.user, self.name)
 
-    def get_home_dir(self):
-        return os.path.join(self.root_dir, 'root')
+    def get_home_dir(self, root=False):
+        if root:
+            homedir = 'root'
+        else:
+            homedir = 'home/%s' % self.user
+
+        return os.path.join(self.root_dir, homedir)
 
     def system(self, cmd, cwd=None, root=False):
         if root:
