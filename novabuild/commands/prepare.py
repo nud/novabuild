@@ -5,12 +5,11 @@ import getopt
 from novabuild.run import system
 from novabuild.colours import red, blue
 import novabuild.env as env
-from novabuild.chroot import Chroot
 
 def usage():
     print sys.argv[0] + ' [--help] [--verbose] [--distro=distro] [--name=name]'
 
-def main(argv):
+def main(chroot, args):
     # Get the user name.
     # Remember are supposed to be ran with sudo
     user = env.get_user_name()
@@ -21,7 +20,7 @@ def main(argv):
     ########################################################################
 
     try:
-        opts, args = getopt.getopt(argv, 'hvd:n:',
+        opts, args = getopt.getopt(args, 'hvd:n:',
                                    ['help', 'verbose', 'distro=', 'name='])
     except getopt.GetoptError, e:
         # print help information and exit:
@@ -31,7 +30,6 @@ def main(argv):
     
     debian_mirror = 'http://ftp.be.debian.org/debian'
     distro = 'etch'
-    chroot_name = None
     verbose = False
     
     for o, a in opts:
@@ -42,12 +40,8 @@ def main(argv):
             sys.exit(0)
         elif o in ('-d', '--distro'):
             distro = a
-        elif o in ('-n', '--name'):
-            chroot_name = a
-    
-    if chroot_name is None:
-        chroot_name = distro
-    chroot_path = os.path.join(chroot_base, user + '-' + chroot_name)
+
+    chroot_path = os.path.join(chroot_base, user + '-' + chroot.name)
     
     if os.path.exists(chroot_path):
         print blue("Directory '%s' already exists!" % chroot_path)
@@ -98,7 +92,7 @@ def main(argv):
     
     # Dump the configuration into schroot.conf
     f = file('/etc/schroot/schroot.conf', 'a')
-    f.write('\n[%s-%s]\n' % (user, chroot_name))
+    f.write('\n[%s-%s]\n' % (user, chroot.name))
     for (key, value) in config.iteritems():
         if isinstance(value, list):
             value = ','.join(value)
@@ -108,8 +102,6 @@ def main(argv):
     f.close()
 
     ########################################################################
-
-    chroot = Chroot(chroot_name)
 
     print blue("Create home directory for user '%s'" % user)
     code = chroot.system('mkdir /home/%s' % user, root=True)
@@ -142,5 +134,5 @@ def main(argv):
 
     print blue("Bootstraping done")
     print blue("Use 'schroot -c %s-%s -d /home/%s' for further access to your chroot environment."
-                % (user, chroot_name, user))
+                % (user, chroot.name, user))
     sys.exit(0)

@@ -74,13 +74,11 @@ def build(chroot, moduleset, package):
     code = system('mv -f %s/*.deb repository/' % BUILD_ROOT)
 
 
-def main(argv):
-    chroot = Chroot(argv[0])
-    c = ModuleSetParser(argv[1])
-    package = argv[2]
+def main(chroot, moduleset, args):
+    package = args[0]
 
     try:
-        build(chroot, c, package)
+        build(chroot, moduleset, package)
 
     except Exception, e:
         print red(e)

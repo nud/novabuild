@@ -5,16 +5,13 @@ from novabuild.commands.fetch import fetch
 from novabuild.colours import red, blue
 import sys
 
-def main(argv):
-    moduleset = argv[0]
-    c = ModuleSetParser(moduleset)
-
+def main(moduleset, args):
     status = 0
 
-    for package in sorted(c.sections()):
+    for package in sorted(moduleset.sections()):
         try:
-            print blue("Fetching '%s' from '%s'" % (package, c.get(package, 'source')))
-            fetch(c, package)
+            print blue("Fetching '%s' from '%s'" % (package, moduleset.get(package, 'source')))
+            fetch(moduleset, package)
         except Exception, e:
             print red(e)
             status = 1

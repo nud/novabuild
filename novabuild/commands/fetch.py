@@ -52,12 +52,11 @@ def fetch(moduleset, package):
     return True
 
 
-def main(argv):
-    c = ModuleSetParser(argv[0])
-    package = argv[1]
+def main(moduleset, args):
+    package = args[1]
 
     try:
-        fetch(c, package)
+        fetch(moduleset, package)
 
     except Exception, e:
         print red(e)

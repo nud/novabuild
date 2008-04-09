@@ -3,7 +3,7 @@
 from novabuild.chroot import Chroot
 import sys
 
-def main(argv):
-    chroot = Chroot(argv[0])
-
-    sys.exit(chroot.system('', root='-r' in argv))
+def main(chroot, args):
+    is_root = '-r' in args or '--root' in args
+    code = chroot.system('', root = is_root)
+    sys.exit(code)
