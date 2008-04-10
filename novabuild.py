@@ -75,3 +75,5 @@ if command == 'fetchall':
 if command == 'build':
     commands.build.main(chroot, moduleset, args)
 
+if command == 'buildall':
+    commands.buildall.main(chroot, moduleset, args)
