@@ -6,6 +6,26 @@ from novabuild.run import system
 from novabuild.colours import red, blue
 from novabuild.chroot import Chroot
 from exceptions import Exception
+from email.Utils import formatdate
+
+# Do we need to update the changelog?
+def changelog_is_up_to_date(filename, version):
+    line = file(filename, 'r').readline()
+    return version in line
+
+# Update the changelog with a new entry.
+def prepend_changelog_entry(new_filename, old_filename, package, version, message):
+    fp = file(new_filename, 'w')
+    fp.write("%s (%s) stable; urgency=low\n\n" % (package, version))
+    print message.split('\n')
+    for line in message.split('\n'):
+        fp.write("  %s\n" % line);
+    fp.write(" -- Damien Sandras <dsandras@novacom.be>  %s\n\n" % formatdate(localtime=True))
+
+    # ... and put the old content in.
+    fp2 = file(old_filename, 'r')
+    for line in fp2:
+        fp.write(line)
 
 
 def check_code(code, package):
@@ -59,13 +79,17 @@ def build(chroot, moduleset, package):
         code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))
         check_code(code, package)
 
-#       cat \$(DEBIAN_DIR)/changelog-$pack_lowercase.txt > /tmp/changelog.tmp;
-#       @(if [ \`cmp /tmp/changelog.tmp \$(DEB_BUILD_DIR)/$build_dirname/debian/changelog 2>&1 | grep "line 1" | wc -l\` -eq '1' ]; then
-#           echo -e "\n -- Novacom Support <support@novacom.be>  \`date -R\` \n" >> /tmp/changelog.tmp;
-#           cat \$(DEB_BUILD_DIR)/$build_dirname/debian/changelog >> /tmp/changelog.tmp;
-#           cp /tmp/changelog.tmp \$(DEB_BUILD_DIR)/$build_dirname/debian/changelog;
-#           cp /tmp/changelog.tmp \$(DEBIAN_DIR)/debian-$pack_lowercase/changelog;
-#       fi;)
+        # Write a new changelog entry...
+        version = "%s-novacom.%s" % (moduleset.get(package, 'version'), moduleset.get(package, 'buildnumber'))
+        changelog_file = "%s/debian/changelog" % BUILD_DIR
+
+        if not changelog_is_up_to_date(changelog_file, version):
+            old_file = "%s/changelog" % DEBIAN_DIR
+            prepend_changelog_entry(changelog_file, old_file, package, version, "* New build.")
+
+            # backup the new changelog file
+            code = system('cp -f %s %s' % (changelog_file, old_file))
+            check_code (code, package)
 
         code = chroot.system('dpkg-buildpackage', root=True, cwd='/home/%s/tmp-build-dir/%s-%s'
                              % (chroot.user, package, moduleset.get(package, 'version')))

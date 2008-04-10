@@ -18,6 +18,7 @@ class ModuleSetParser(ConfigParser):
             'depend': '',
             'install': 'no',
             'encode': 'no',
+            'buildnumber': '1',
         }
 
         if user_defaults is not None:
