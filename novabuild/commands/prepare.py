@@ -123,6 +123,9 @@ def main(chroot, args):
         'dpkg-dev',
         'debhelper',
         'kernel-package',
+        'bzip2',
+        'dialog',
+        'vim',
     )
 
     code = chroot.system('apt-get -y -u install ' + ' '.join(to_install), root=True)
