@@ -11,13 +11,11 @@ class Module(ControlSection):
         'local': ('file', ),
     }
     defaults = {
-        'Download-Dir': '/tmp',
         'Version': '1.0.0',
-        'Orig-Version': '%(version)s',
-        'Category': 'std',
+        'Category': 'standard',
         'Changelog': '',
-        'Depend': '',
-        'Install': 'no',
+        'Depends': '',
+        'Install': '',
         'Encode': 'no',
         'Build-Number': '1',
     }
@@ -34,7 +32,7 @@ class Module(ControlSection):
         except KeyError, e:
             if key == 'Basename':
                 if self['Source-Type'] == 'svn':
-                    return '%s-%s.tar.gz' % (self['Module'], self['Orig-Version'])
+                    return '%s-%s.tar.gz' % (self['Module'], self['Version'])
                 else:
                     return os.path.basename(self['Source'])
             elif key == 'Source-Type':

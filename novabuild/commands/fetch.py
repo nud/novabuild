@@ -23,7 +23,7 @@ def fetch(module):
         check_code(code, module)
 
     elif source_type == 'svn':
-        tmpdir = '%s-%s' % (module.name, module['Orig-Version'])
+        tmpdir = '%s-%s' % (module.name, module['Version'])
 
         print blue("Exporting the SVN snapshot")
         code = system('svn export --force %s tarballs/%s' % (module['Source'], tmpdir))
