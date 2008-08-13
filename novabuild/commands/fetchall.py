@@ -7,10 +7,10 @@ import sys
 def main(moduleset, args):
     status = 0
 
-    for module in moduleset:
+    for module in sorted(moduleset):
         try:
-            print blue("Fetching '%s' from '%s'" % (package, module['Source']))
-            fetch(module)
+            print blue("Fetching '%s' from '%s'" % (moduleset[module].name, moduleset[module]['Source']))
+            fetch(moduleset[module])
         except Exception, e:
             print red(e)
             status = 1

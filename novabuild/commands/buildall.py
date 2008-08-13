@@ -9,8 +9,8 @@ def main(chroot, moduleset, args):
 
     for module in moduleset:
         try:
-            print blue("Building '%s'" % module.name)
-            build(chroot, module)
+            print blue("Building '%s'" % moduleset[module].name)
+            build(chroot, moduleset[module])
         except Exception, e:
             print red(e)
             status = 1
