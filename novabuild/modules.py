@@ -23,7 +23,12 @@ class Module(ControlSection):
     VALUES_PATTERN = re.compile(r'\${([^}]+)}')
     def _expand_values(self, value):
         def callback(m):
-            return self[m.group(1)]
+            args = m.group(1).split(':')
+            val = self[args[0]]
+            for arg in args[1:]:
+                if arg == 'underscores':
+                    val = val.replace('.', '_')
+            return val
         return self.VALUES_PATTERN.sub(callback, value)
 
     def __getitem__(self, key):
