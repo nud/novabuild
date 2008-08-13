@@ -4,9 +4,13 @@ def list_packages(moduleset):
     print "Category           Package Name                 Version         Source URI"
     print "---------          -------------                --------        -----------"
 
-    for section in sorted(moduleset.sections()):
-        items = dict(moduleset.items(section))
-        items['name'] = section
+    for module in moduleset:
+        items = {
+            'category': module['Category'],
+            'name': module.name,
+            'version': module['Version'],
+            'source': module['Source'],
+        }
         print "%(category)-18s %(name)-28s %(version)-15s %(source)s" % items
 
 

@@ -20,8 +20,8 @@ class Chroot(object):
             if cwd is None: cwd = homedir
             path = os.path.join(cwd, path)
 
-        if internal:
-            path = os.path.join(self.root_dir, path)
+        if not internal:
+            path = os.path.join(self.root_dir, path[1:])
 
         return path
 

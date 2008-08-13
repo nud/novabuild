@@ -20,6 +20,8 @@ class ControlSection(dict):
         return ''.join("%s: %s\n" % (key, self[key].replace('\n', '\n  ')) for key in self._key_order) + "\n"
 
 class BasicControlParser(object):
+    section_class = ControlSection
+
     def __init__(self, defaults=None):
         self._sections = []
         self._defaults = {}
@@ -69,7 +71,7 @@ class BasicControlParser(object):
             key, value = [bit.strip() for bit in line.split(':', 1)]
 
             if not section:
-                section = ControlSection()
+                section = self.section_class()
 
             section[key] = value
             lastkey = key
@@ -82,6 +84,9 @@ class BasicControlParser(object):
 
     def __getslice__(self, a, b):
         return self._sections[a:b]
+
+    def __iter__(self):
+        return iter(self._sections)
 
     def dump(self):
         return '\n'.join(section.dump() for section in self._sections)

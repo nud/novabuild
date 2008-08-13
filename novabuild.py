@@ -3,7 +3,7 @@
 
 import novabuild.commands as commands
 from novabuild.chroot import Chroot
-from novabuild.config import ModuleSetParser
+from novabuild.modules import ModuleSet
 import sys
 import os
 import getopt
@@ -50,7 +50,7 @@ if len(args) < 1:
 
 # Arguments to pass to the commands
 chroot = chroot_name and Chroot(chroot_name) or None
-moduleset = moduleset_name and ModuleSetParser(moduleset_name) or None
+moduleset = moduleset_name and ModuleSet(moduleset_name) or None
 command = args[0]
 args = args[1:]
 
@@ -77,3 +77,6 @@ if command == 'build':
 
 if command == 'buildall':
     commands.buildall.main(chroot, moduleset, args)
+
+if command == 'installpackages':
+    commands.installpackages.main(chroot, moduleset, args)
