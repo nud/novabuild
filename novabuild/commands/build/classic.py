@@ -41,7 +41,7 @@ def update_changelog(module, build_dir, debian_dir):
         print blue("No ChangeLog update is needed")
 
 
-def build_module(module, chroot, BUILD_DIR):
+def build_module(module, chroot, moduleset, BUILD_DIR):
     DEBIAN_DIR = os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
 
     code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))

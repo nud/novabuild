@@ -5,7 +5,7 @@ from novabuild.colours import blue
 from novabuild.misc import check_code
 
 
-def build_module(module, chroot, build_dir):
+def build_module(module, chroot, moduleset, build_dir):
    print blue("Building '%s' '%s'" % (module.name, module['Version']))
    code = system('cp autobuild/debian/config-%s-i386 %s/.config' % (module['Version'], build_dir))
    check_code(code, module)

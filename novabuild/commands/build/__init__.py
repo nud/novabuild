@@ -31,15 +31,15 @@ def uncompress_tarball(module, destination):
     #check_code(code, module)  FIXME: we don't want to fail when "cannot move to itself"
 
 
-def build_module(module, chroot, build_dir):
+def build_module(module, chroot, moduleset, build_dir):
     print blue("Using build method '%s'" % module['Build-Method'])
 
     pymodule = __import__("novabuild.commands.build.%s" % module['Build-Method'],
                           globals(), locals(), ["build_module"])
-    pymodule.build_module(module, chroot, build_dir)
+    pymodule.build_module(module, chroot, moduleset, build_dir)
 
 
-def build(chroot, module):
+def build(chroot, moduleset, module):
     BUILD_DIR = os.path.join(chroot.get_home_dir(), 'tmp-build-dir',
                              '%s-%s' % (module.name, module['Version']))
 
@@ -50,7 +50,7 @@ def build(chroot, module):
     check_code(code, module)
 
     uncompress_tarball(module, BUILD_DIR)
-    build_module(module, chroot, BUILD_DIR)
+    build_module(module, chroot, moduleset, BUILD_DIR)
 
     packages_to_install = [i.strip() for i in module['Install'].split(',')]
     if packages_to_install != []:
@@ -68,7 +68,7 @@ def main(chroot, moduleset, args):
     module = moduleset[args[0]]
 
     try:
-        build(chroot, module)
+        build(chroot, moduleset, module)
 
     except Exception, e:
         print red(e)
