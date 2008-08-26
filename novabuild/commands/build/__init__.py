@@ -56,10 +56,10 @@ def build(chroot, module):
     if packages_to_install != []:
         print blue("Installing packages '%s'" % "', '".join(packages_to_install))
         packages = [os.path.basename(i) for i in glob.glob(chroot.abspath('~/tmp-build-dir/*.deb', internal=False))]
-        for package in packages:
-            if package.split('_',1)[0] in packages_to_install:
-                code = chroot.system("dpkg -i %s" % chroot.abspath('~/tmp-build-dir/%s' % package), root=True)
-                check_code(code, module)
+        packages = [chroot.abspath('~/tmp-build-dir/%s' % package) for package in packages
+                                                 if package.split('_', 1)[0] in packages_to_install]
+        code = chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
+        check_code(code, module)
 
     code = system('mv -f %s/*.deb repository/' % os.path.dirname(BUILD_DIR))
 
