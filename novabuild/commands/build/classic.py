@@ -8,11 +8,37 @@ from novabuild.colours import blue
 from novabuild.misc import check_code
 
 
-def get_dependencies(chroot, BUILD_DIR):
+# Get the dependencies of the current package
+def get_dependencies(chroot, build_dir):
     control = PackageControlParser()
-    control.read(os.path.join(BUILD_DIR, 'debian/control'))
+    control.read(os.path.join(build_dir, 'debian/control'))
     dependencies = control.source.get('Build-Depends', '')
     return [i.strip().split(None, 1)[0] for i in dependencies.split(',')]
+
+
+# Install the current module dependencies
+def install_dependencies(module, chroot, build_dir):
+    print blue('Installing dependencies')
+    code = chroot.system('apt-get install %s' % ' '.join(get_dependencies(chroot, build_dir)), root=True)
+    check_code(code, module)
+
+
+# Write a new changelog entry...
+def update_changelog(module, build_dir, debian_dir):
+    filename = os.path.join(build_dir, 'debian', 'changelog')
+    version = "%s-novacom.%s" % (module['Version'], module['Build-Number'])
+
+    if not changelog_is_up_to_date(filename, version):
+        old_filename = os.path.join(debian_dir, 'changelog')
+
+        print blue("Update ChangeLog for version %s" % version)
+        prepend_changelog_entry(filename, old_filename, module.name, version, "* New build.")
+
+        # backup the new changelog file
+        code = system('cp -f %s %s' % (filename, old_filename))
+        check_code(code, module)
+    else:
+        print blue("No ChangeLog update is needed")
 
 
 def build_module(module, chroot, BUILD_DIR):
@@ -21,22 +47,9 @@ def build_module(module, chroot, BUILD_DIR):
     code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))
     check_code(code, module)
 
-    print blue('Installing dependencies')
-    code = chroot.system('apt-get install %s' % ' '.join(get_dependencies(chroot, BUILD_DIR)), root=True)
-    check_code(code, module)
+    install_dependencies(module, chroot, BUILD_DIR)
 
-    # Write a new changelog entry...
-    version = "%s-novacom.%s" % (module['Version'], module['Build-Number'])
-    changelog_file = "%s/debian/changelog" % BUILD_DIR
-
-    if not changelog_is_up_to_date(changelog_file, version):
-        print blue("Update ChangeLog")
-        old_file = "%s/changelog" % DEBIAN_DIR
-        prepend_changelog_entry(changelog_file, old_file, module.name, version, "* New build.")
-
-        # backup the new changelog file
-        code = system('cp -f %s %s' % (changelog_file, old_file))
-        check_code(code, module)
+    update_changelog(module, BUILD_DIR, DEBIAN_DIR)
 
     # Build the package for real.
     print blue("Building '%s' '%s'" % (module.name, module['Version']))
