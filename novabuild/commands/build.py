@@ -43,7 +43,7 @@ def build(chroot, module):
 
     BUILD_ROOT = os.path.join(chroot.get_home_dir(), 'tmp-build-dir')
     BUILD_DIR = os.path.join (BUILD_ROOT, '%s-%s' % (module.name, module['Version']))
-    DEBIAN_DIR = os.path.join('debian', 'debian-%s' % module.name)
+    DEBIAN_DIR = os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
 
     print blue("Uncompressing '%s'" % TARBALL)
 
