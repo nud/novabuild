@@ -53,7 +53,7 @@ def build_module(module, chroot, BUILD_DIR):
 
     # Build the package for real.
     print blue("Building '%s' '%s'" % (module.name, module['Version']))
-    code = chroot.system('dpkg-buildpackage', root=True, cwd='/home/%s/tmp-build-dir/%s-%s'
+    code = chroot.system('fakeroot dpkg-buildpackage', cwd='/home/%s/tmp-build-dir/%s-%s'
                          % (chroot.user, module.name, module['Version']))
     check_code(code, module)
 

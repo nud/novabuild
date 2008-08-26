@@ -123,6 +123,7 @@ def main(chroot, args):
         'dpkg-dev',
         'debhelper',
         'kernel-package',
+        'fakeroot',
         'bzip2',
         'dialog',
         'vim',
