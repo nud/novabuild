@@ -18,6 +18,7 @@ class Module(ControlSection):
         'Install': '',
         'Encode': 'no',
         'Build-Number': '1',
+        'Build-Method': 'classic',
     }
 
     VALUES_PATTERN = re.compile(r'\${([^}]+)}')

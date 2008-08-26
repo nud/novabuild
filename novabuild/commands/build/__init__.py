@@ -5,7 +5,6 @@ from novabuild.debcontrol import PackageControlParser
 from novabuild.changelog import *
 from novabuild.run import system
 from novabuild.colours import red, blue
-from novabuild.chroot import Chroot
 from novabuild.misc import check_code
 from exceptions import Exception
 
@@ -32,17 +31,17 @@ def uncompress_tarball(module, destination):
     #check_code(code, module)  FIXME: we don't want to fail when "cannot move to itself"
 
 
-def get_dependencies(chroot, BUILD_DIR):
-    control = PackageControlParser()
-    control.read(os.path.join(BUILD_DIR, 'debian/control'))
-    dependencies = control.source.get('Build-Depends', '')
-    return [i.strip().split(None, 1)[0] for i in dependencies.split(',')]
+def build_module(module, chroot, build_dir):
+    print blue("Using build method '%s'" % module['Build-Method'])
+
+    pymodule = __import__("novabuild.commands.build.%s" % module['Build-Method'],
+                          globals(), locals(), ["build_module"])
+    pymodule.build_module(module, chroot, build_dir)
 
 
 def build(chroot, module):
     BUILD_DIR = os.path.join(chroot.get_home_dir(), 'tmp-build-dir',
                              '%s-%s' % (module.name, module['Version']))
-    DEBIAN_DIR = os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
 
     code = chroot.system('rm -rf /home/%s/tmp-build-dir' % chroot.user, root=True)
     check_code(code, module)
@@ -51,42 +50,7 @@ def build(chroot, module):
     check_code(code, module)
 
     uncompress_tarball(module, BUILD_DIR)
-
-    # Kernel packages have to be handled specially.
-    if module['Module'] == 'linux':
-        print blue("Building '%s' '%s'" % (module['Module'], module['Version']))
-        code = system('cp autobuild/debian/config-%s-i386 %s/.config' % (module['Version'], BUILD_DIR))
-        check_code(code, module)
-
-        code = chroot.system('make-kpkg --revision=novacom.i386.3.0 kernel_image kernel_headers kernel_source',
-                             cwd=chroot.abspath('~/tmp-build-dir/linux-%s' % module['Version']), root=True)
-        check_code(code, module)
-
-    else:
-        code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))
-        check_code(code, module)
-
-        print blue('Installing dependencies')
-        code = chroot.system('apt-get install %s' % ' '.join(get_dependencies(chroot, BUILD_DIR)), root=True)
-        check_code(code, module)
-
-        # Write a new changelog entry...
-        version = "%s-novacom.%s" % (module['Version'], module['Build-Number'])
-        changelog_file = "%s/debian/changelog" % BUILD_DIR
-
-        if not changelog_is_up_to_date(changelog_file, version):
-            print blue("Update ChangeLog")
-            old_file = "%s/changelog" % DEBIAN_DIR
-            prepend_changelog_entry(changelog_file, old_file, module.name, version, "* New build.")
-
-            # backup the new changelog file
-            code = system('cp -f %s %s' % (changelog_file, old_file))
-            check_code (code, module)
-
-        print blue("Building '%s' '%s'" % (module.name, module['Version']))
-        code = chroot.system('dpkg-buildpackage', root=True, cwd='/home/%s/tmp-build-dir/%s-%s'
-                             % (chroot.user, module.name, module['Version']))
-        check_code(code, module)
+    build_module(module, chroot, BUILD_DIR)
 
     packages_to_install = [i.strip() for i in module['Install'].split(',')]
     if packages_to_install != []:
