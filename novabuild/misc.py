@@ -4,4 +4,4 @@ from exceptions import Exception
 
 def check_code(code, module):
     if code != 0:
-        raise Exception("Could not fetch module %s" % module.name)
+        raise Exception("Could not handle module %s" % module.name)
