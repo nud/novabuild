@@ -9,23 +9,34 @@ from novabuild.chroot import Chroot
 from novabuild.misc import check_code
 from exceptions import Exception
 
+
+def uncompress_tarball(module, destination):
+    filename = os.path.join('tarballs', module['Basename'])
+    if not os.path.exists(filename):
+        raise Exception("You must fetch the package '%s' before building it." % module.name)
+
+    print blue("Uncompressing '%s'" % filename)
+    if filename.endswith('.tar.bz2') or filename.endswith('.tbz'):
+        check_code(system('tar xjf %s -C %s' % (filename, destination)), module)
+    elif filename.endswith('.tar.gz') or filename.endswith('.tgz'):
+        check_code(system('tar xzf %s -C %s' % (filename, destination)), module)
+    elif filename.endswith('.zip'):
+        check_code(system('unzip %s -d %s' % (filename, destination)), module)
+    else:
+        raise Exception("Cannot find the type of the archive.")
+
+
 def get_dependencies(chroot, BUILD_DIR):
     control = PackageControlParser()
     control.read(os.path.join(BUILD_DIR, 'debian/control'))
     dependencies = control.source.get('Build-Depends', '')
     return [i.strip().split(None, 1)[0] for i in dependencies.split(',')]
 
+
 def build(chroot, module):
-    TARBALL = os.path.join('tarballs', module['Basename'])
-
-    if not os.path.exists(TARBALL):
-        raise Exception("You must fetch the package '%s' before building it." % module.name)
-
     BUILD_ROOT = os.path.join(chroot.get_home_dir(), 'tmp-build-dir')
     BUILD_DIR = os.path.join (BUILD_ROOT, '%s-%s' % (module.name, module['Version']))
     DEBIAN_DIR = os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
-
-    print blue("Uncompressing '%s'" % TARBALL)
 
     code = chroot.system('rm -rf /home/%s/tmp-build-dir' % chroot.user, root=True)
     check_code(code, module)
@@ -33,23 +44,12 @@ def build(chroot, module):
     code = system('mkdir -p %s' % BUILD_ROOT)
     check_code(code, module)
 
-    if TARBALL.endswith('.tar.bz2'):
-        code = system('tar xjf %s -C %s' % (TARBALL, BUILD_ROOT))
-        check_code(code, module)
-    elif TARBALL.endswith('.tar.gz') or TARBALL.endswith('.tgz'):
-        code = system('tar xzf %s -C %s' % (TARBALL, BUILD_ROOT))
-        check_code(code, module)
-    elif TARBALL.endswith('.zip'):
-        code = system('unzip %s -d %s' % (TARBALL, BUILD_ROOT))
-        check_code(code, module)
-    else:
-        raise Exception("Cannot find the type of the archive.")
-
+    uncompress_tarball(module, BUILD_ROOT)
 
     # Kernel packages have to be handled specially.
     if module['Module'] == 'linux':
         print blue("Building '%s' '%s'" % (module['Module'], module['Version']))
-        code = system('cp debian/config-%s-i386 %s/.config' % (module['Version'], BUILD_DIR))
+        code = system('cp autobuild/debian/config-%s-i386 %s/.config' % (module['Version'], BUILD_DIR))
         check_code(code, module)
 
         code = chroot.system('make-kpkg --revision=novacom.i386.3.0 kernel_image kernel_headers kernel_source',
