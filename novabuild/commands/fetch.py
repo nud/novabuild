@@ -3,12 +3,8 @@
 import os, sys
 from novabuild.run import system
 from novabuild.colours import red, blue
+from novabuild.misc import check_code
 from exceptions import Exception
-
-
-def check_code(code, module):
-    if code != 0:
-        raise Exception("Could not fetch module %s" % module.name)
 
 
 def fetch(module):

@@ -5,6 +5,7 @@ from novabuild.debcontrol import PackageControlParser
 from novabuild.run import system
 from novabuild.colours import red, blue
 from novabuild.chroot import Chroot
+from novabuild.misc import check_code
 from exceptions import Exception
 from email.Utils import formatdate
 
@@ -26,11 +27,6 @@ def prepend_changelog_entry(new_filename, old_filename, package, version, messag
     fp2 = file(old_filename, 'r')
     for line in fp2:
         fp.write(line)
-
-
-def check_code(code, module):
-    if code != 0:
-        raise Exception("Could not build package %s" % module.name)
 
 
 def get_dependencies(chroot, BUILD_DIR):
