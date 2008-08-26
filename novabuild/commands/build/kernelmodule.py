@@ -17,6 +17,7 @@ def save_wrapper_script(chroot, moduleset):
     fp = file(chroot.abspath(wrapper_script, internal=False), 'w')
 
     fp.write("export KVERS=%s\n" % moduleset['linux']['Version'])
+    fp.write("export LINUX=/usr/src/linux-headers-$KVERS\n")
     fp.write("export USE_SANGOMA=1\n")
     fp.write("exec fakeroot dpkg-buildpackage\n");
 
