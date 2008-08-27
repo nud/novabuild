@@ -7,35 +7,28 @@ from novabuild.run import system
 from novabuild.colours import blue
 from novabuild.misc import check_code
 
-from classic import install_dependencies, update_changelog
+import classic
 
 
-wrapper_script = '~/tmp-build-dir/build-wrapper.sh'
+class BuildMethod(classic.BuildMethod):
+    wrapper_script = '~/tmp-build-dir/build-wrapper.sh'
 
+    def get_wrapper_script(self):
+        return ''.join(["export KVERS=%s\n" % self.moduleset['linux']['Version'],
+                        "export LINUX=/usr/src/linux-headers-$KVERS\n",
+                        "export USE_SANGOMA=1\n",
+                        "exec fakeroot dpkg-buildpackage\n"])
 
-def save_wrapper_script(chroot, moduleset):
-    fp = file(chroot.abspath(wrapper_script, internal=False), 'w')
+    def save_wrapper_script(self):
+        path = self.chroot.abspath(self.wrapper_script, internal=False)
+        file(path, 'w').write(self.get_wrapper_script())
 
-    fp.write("export KVERS=%s\n" % moduleset['linux']['Version'])
-    fp.write("export LINUX=/usr/src/linux-headers-$KVERS\n")
-    fp.write("export USE_SANGOMA=1\n")
-    fp.write("exec fakeroot dpkg-buildpackage\n");
+    def setup_build_env(self, *args):
+        classic.BuildMethod.setup_build_env(self, *args)
+        self.save_wrapper_script()
 
-
-def build_module(module, chroot, moduleset, BUILD_DIR):
-    DEBIAN_DIR = os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
-
-    code = system('cp -r %s %s/debian' % (DEBIAN_DIR, BUILD_DIR))
-    check_code(code, module)
-
-    install_dependencies(module, chroot, BUILD_DIR)
-
-    update_changelog(module, BUILD_DIR, DEBIAN_DIR)
-
-    print blue("Writing the wrapper script for module building")
-    save_wrapper_script(chroot, moduleset)
-
-    print blue("Building '%s' '%s'" % (module.name, module['Version']))
-    code = chroot.system('sh ' + chroot.abspath(wrapper_script),
-                         cwd=chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version'])))
-    check_code(code, module)
+    def build(self, module):
+        cmd = 'sh ' + self.chroot.abspath(self.wrapper_script)
+        cwd = self.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
+        code = self.chroot.system(cmd, cwd=cwd)
+        check_code(code, module)

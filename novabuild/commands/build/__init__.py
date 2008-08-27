@@ -35,8 +35,9 @@ def build_module(module, chroot, moduleset, build_dir):
     print blue("Using build method '%s'" % module['Build-Method'])
 
     pymodule = __import__("novabuild.commands.build.%s" % module['Build-Method'],
-                          globals(), locals(), ["build_module"])
-    pymodule.build_module(module, chroot, moduleset, build_dir)
+                          globals(), locals(), ["BuildMethod"])
+    method = pymodule.BuildMethod(chroot, moduleset)
+    method.build_module(module, build_dir)
 
 
 def build(chroot, moduleset, module):
