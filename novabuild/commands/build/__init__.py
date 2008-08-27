@@ -53,14 +53,15 @@ def build(chroot, moduleset, module):
     uncompress_tarball(module, BUILD_DIR)
     build_module(module, chroot, moduleset, BUILD_DIR)
 
-    packages_to_install = [i.strip() for i in module['Install'].split(',')]
-    if packages_to_install != []:
-        print blue("Installing packages '%s'" % "', '".join(packages_to_install))
-        packages = [os.path.basename(i) for i in glob.glob(chroot.abspath('~/tmp-build-dir/*.deb', internal=False))]
-        packages = [chroot.abspath('~/tmp-build-dir/%s' % package) for package in packages
-                                                 if package.split('_', 1)[0] in packages_to_install]
-        code = chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
-        check_code(code, module)
+    if module['Install']:
+        packages_to_install = [i.strip() for i in module['Install'].split(',')]
+        if packages_to_install != []:
+            print blue("Installing packages '%s'" % "', '".join(packages_to_install))
+            packages = [os.path.basename(i) for i in glob.glob(chroot.abspath('~/tmp-build-dir/*.deb', internal=False))]
+            packages = [chroot.abspath('~/tmp-build-dir/%s' % package) for package in packages
+                                                     if package.split('_', 1)[0] in packages_to_install]
+            code = chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
+            check_code(code, module)
 
     code = system('mv -f %s/*.deb repository/' % os.path.dirname(BUILD_DIR))
 
