@@ -9,6 +9,10 @@ from email.Utils import formatdate
 from exceptions import Exception
 
 
+DEFAULT_AUTHOR = "Damien Sandras"
+DEFAULT_EMAIL = "dsandras@novacom.be"
+
+
 # Simple class for comparing debian versions.
 class Version(object):
     PATTERN = re.compile('^(?:([1-9]+):)?([1-9\.]+)(?:-novacom.([0-9]+))?$')
@@ -103,7 +107,7 @@ CHANGELOG_TEMPLATE = """#
 
   * New build
 
- -- Damien Sandras <dsandras@novacom.be>  %(date)s
+ -- %(author)s <%(email)s>  %(date)s
 
 #
 # Here is the Changelog entry for the previous release:
@@ -118,6 +122,8 @@ def prepend_changelog_entry(new_filename, old_filename, package, version):
 
     text = CHANGELOG_TEMPLATE % { 'package': package,
                                   'version': version,
+                                  'author': os.getenv('NOVABUILD_AUTHOR', DEFAULT_AUTHOR),
+                                  'email': os.getenv('NOVABUILD_EMAIL', DEFAULT_EMAIL),
                                   'date': formatdate(localtime=True),
                                   'last_entry': last_entry }
     text = run_editor(text)
