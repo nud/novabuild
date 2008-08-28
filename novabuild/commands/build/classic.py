@@ -36,12 +36,14 @@ class BuildMethod(base.BuildMethod):
     def update_changelog(self, module, build_dir, debian_dir):
         filename = os.path.join(build_dir, 'debian', 'changelog')
         version = "%s-novacom.%s" % (module['Version'], module['Build-Number'])
+        if 'Packaging-Version' in module:
+            version = '%s:%s' % (module['Packaging-Version'], version)
 
         if not changelog_is_up_to_date(filename, version):
             old_filename = os.path.join(debian_dir, 'changelog')
 
             print blue("Update ChangeLog for version %s" % version)
-            prepend_changelog_entry(filename, old_filename, module.name, version, "* New build.")
+            prepend_changelog_entry(filename, old_filename, module.name, version)
 
             # backup the new changelog file
             code = system('cp -f %s %s' % (filename, old_filename))

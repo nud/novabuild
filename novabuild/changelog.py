@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
 import re
+import os
+import sys
+import tempfile
+import time
 from email.Utils import formatdate
 from exceptions import Exception
 
@@ -53,14 +57,79 @@ def changelog_is_up_to_date(filename, version):
     return version == lv
 
 
+def read_last_changelog_entry(filename):
+    f = file(filename, 'r')
+    lines = [f.readline()]
+    line = f.readline()
+    while line.isspace() or line.startswith(' '):
+        lines.append(line)
+        line = f.readline()
+
+    return lines
+
+
+# Let an user edit a string
+def run_editor(text):
+    # Write a temporary file
+    fd, filename = tempfile.mkstemp(prefix="test-vim-", suffix=".txt")
+    os.fdopen(fd, "w").write(text)
+
+    # Edit the file using the editor
+    os.system("%s \"%s\"" % (os.getenv('EDITOR', 'vi'), filename))
+
+    # Read the file (stripping comments) and delete it
+    lines = [l for l in file(filename).readlines() if not l.startswith('#')]
+    os.unlink(filename)
+
+    # Drop double empty lines and empty lines at the begining and the end.
+    lines = [lines[i] for i in range(0, len(lines))
+               if i > 0 and not lines[i-1].isspace() or not lines[i].isspace()]
+    if len(lines) > 1 and lines[-1].isspace():
+        del lines[-1]
+
+    return ''.join(lines)
+
+
+CHANGELOG_TEMPLATE = """#
+# Changelog entry for:
+#
+#         %(package)s - %(version)s
+#
+# Edit the lines below to reflect what has changed since the last release.
+# Commented lines will not be included.
+# If this file is left empty, then the building process will abord.
+# Please note that wrong whitespacing might make the build process fail.
+#
+
+  * New build
+
+ -- Damien Sandras <dsandras@novacom.be>  %(date)s
+
+#
+# Here is the Changelog entry for the previous release:
+#
+%(last_entry)s
+"""
+
+
 # Update the changelog with a new entry.
-def prepend_changelog_entry(new_filename, old_filename, package, version, message):
+def prepend_changelog_entry(new_filename, old_filename, package, version):
+    last_entry = ''.join('# %s' % l for l in read_last_changelog_entry(old_filename))
+
+    text = CHANGELOG_TEMPLATE % { 'package': package,
+                                  'version': version,
+                                  'date': formatdate(localtime=True),
+                                  'last_entry': last_entry }
+    text = run_editor(text)
+
+    # We don't want to continue if there is no changelog!
+    if not text:
+        raise Exception("No changelog provided.")
+
     fp = file(new_filename, 'w')
     fp.write("%s (%s) stable; urgency=low\n\n" % (package, version))
-    print message.split('\n')
-    for line in message.split('\n'):
-        fp.write("  %s\n" % line);
-    fp.write(" -- Damien Sandras <dsandras@novacom.be>  %s\n\n" % formatdate(localtime=True))
+    fp.write(text)
+    fp.write('\n')
 
     # ... and put the old content in.
     fp2 = file(old_filename, 'r')
