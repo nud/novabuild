@@ -13,6 +13,8 @@ from novabuild.misc import check_code
 class BuildMethod(base.BuildMethod):
     # Set up the dpkg environment for the build.
     def setup_build_env(self, debian_dir, build_dir, module):
+        self.uncompress_tarball(module, build_dir)
+
         code = system('cp -r %s %s/debian' % (debian_dir, build_dir))
         check_code(code, module)
 

@@ -9,6 +9,8 @@ from novabuild.misc import check_code
 
 class BuildMethod(base.BuildMethod):
     def build_module(self, module, build_dir):
+        self.uncompress_tarball(module, build_dir)
+
         print blue("Building '%s' '%s'" % (module.name, module['Version']))
         code = system('cp autobuild/debian/config-%s-i386 %s/.config' % (module['Version'], build_dir))
         check_code(code, module)

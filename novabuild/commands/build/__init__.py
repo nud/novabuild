@@ -1,34 +1,10 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
 import os, sys, glob
-from novabuild.debcontrol import PackageControlParser
-from novabuild.changelog import *
 from novabuild.run import system
 from novabuild.colours import red, blue
 from novabuild.misc import check_code
 from exceptions import Exception
-
-
-def uncompress_tarball(module, destination):
-    filename = os.path.join('tarballs', module['Basename'])
-    if not os.path.exists(filename):
-        raise Exception("You must fetch the package '%s' before building it." % module.name)
-
-    dest_parent = os.path.dirname(destination)
-
-    print blue("Uncompressing '%s'" % filename)
-    if filename.endswith('.tar.bz2') or filename.endswith('.tbz'):
-        check_code(system('tar xjf %s -C %s' % (filename, dest_parent)), module)
-    elif filename.endswith('.tar.gz') or filename.endswith('.tgz'):
-        check_code(system('tar xzf %s -C %s' % (filename, dest_parent)), module)
-    elif filename.endswith('.zip'):
-        check_code(system('unzip %s -d %s' % (filename, dest_parent)), module)
-    else:
-        raise Exception("Cannot find the type of the archive.")
-
-    # Put the directory in the tarball in the right directory
-    code = system('mv %s/* %s' % (dest_parent, destination))
-    #check_code(code, module)  FIXME: we don't want to fail when "cannot move to itself"
 
 
 def build_module(module, chroot, moduleset, build_dir):
@@ -50,7 +26,6 @@ def build(chroot, moduleset, module):
     code = system('mkdir -p %s' % os.path.dirname(BUILD_DIR))
     check_code(code, module)
 
-    uncompress_tarball(module, BUILD_DIR)
     build_module(module, chroot, moduleset, BUILD_DIR)
 
     if module['Install']:
