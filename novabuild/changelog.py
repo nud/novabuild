@@ -15,10 +15,12 @@ DEFAULT_EMAIL = "dsandras@novacom.be"
 
 # Simple class for comparing debian versions.
 class Version(object):
-    PATTERN = re.compile('^(?:([1-9]+):)?([1-9\.]+)(?:-novacom.([0-9]+))?$')
+    PATTERN = re.compile('^(?:([0-9]+):)?([0-9\.]+)(?:-novacom.([0-9]+))?$')
 
     def __init__(self, string):
         matches = self.PATTERN.match(string)
+        if not matches:
+            raise Exception("Invalid version number: %s" % string)
         self.packaging = int(matches.group(1) or 0)
         self.numbers = [int(i) for i in matches.group(2).split('.')]
         self.buildnumber = int(matches.group(3) or 0)
