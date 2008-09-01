@@ -18,6 +18,23 @@ def fetch(module):
         code = system('wget -Nc %s -Otarballs/%s' % (module['Source'], module['Basename']))
         check_code(code, module)
 
+    elif source_type == 'git':
+        fullname = '%s-%s' % (module.name, module['Version'])
+        branch = module.get('Branch', 'master')
+
+        print blue("Cloning the last revision of the remote repository")
+        code = system('git clone --depth=1 -- %s tarballs/%s' % (module['Source'], fullname))
+        check_code(code, module)
+
+        print blue("Generating tarball")
+        code = system('( cd tarballs/%s && git archive --format=tar --prefix=%s/ origin/%s ) | gzip -9 > tarballs/%s' \
+                      % (fullname, fullname, branch, module['Basename']))
+        check_code(code, module)
+
+        print blue("Removing temporary directory")
+        code = system('rm -rf tarballs/%s' % fullname)
+        check_code(code, module)
+
     elif source_type == 'svn':
         tmpdir = '%s-%s' % (module.name, module['Version'])
 

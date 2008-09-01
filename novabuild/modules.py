@@ -6,6 +6,7 @@ from debcontrol import BasicControlParser, ControlSection
 
 class Module(ControlSection):
     protocols = {
+        'git': ('git', 'git+ssh'),
         'svn': ('svn', 'svn+ssh'),
         'wget': ('http', 'https', 'ftp'),
         'local': ('file', ),
@@ -37,7 +38,7 @@ class Module(ControlSection):
             return self._expand_values(dict.__getitem__(self, key))
         except KeyError, e:
             if key == 'Basename':
-                if self['Source-Type'] == 'svn':
+                if self['Source-Type'] in ('git', 'svn'):
                     return '%s-%s.tar.gz' % (self['Module'], self['Version'])
                 else:
                     return os.path.basename(self['Source'])
