@@ -22,14 +22,15 @@ class BuildMethod(base.BuildMethod):
         control = PackageControlParser()
         control.read(os.path.join(build_dir, 'debian/control'))
         dependencies = control.source.get('Build-Depends', '')
-        return [i.strip().split(None, 1)[0] for i in dependencies.split(',')]
+        return [i.strip().split(None, 1)[0] for i in dependencies.split(',') if i]
 
 
     # Install the current module dependencies
     def install_dependencies(self, module, build_dir):
         deps = self.get_dependencies(build_dir)
-        code = self.chroot.system('apt-get install %s' % ' '.join(deps), root=True)
-        check_code(code, module)
+        if deps:
+            code = self.chroot.system('apt-get install %s' % ' '.join(deps), root=True)
+            check_code(code, module)
 
 
     # Write a new changelog entry...
