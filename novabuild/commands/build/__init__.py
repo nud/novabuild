@@ -15,11 +15,18 @@ def get_build_method(module, chroot, moduleset):
     return pymodule.BuildMethod(chroot, moduleset)
 
 
-def build(chroot, moduleset, module):
+def build(chroot, moduleset, module, force=False, recursive=False):
     method = get_build_method(module, chroot, moduleset)
-    if method.module_is_built(module):
+    if not force and method.module_is_built(module):
         print blue("Module '%s' has already been built" % module.name)
         return False
+
+    if recursive:
+        dependencies = [x for x in [i.strip() for i in module['Depends'].split(',')] if x]
+        if dependencies:
+            print blue("Building dependencies for '%s'" % module.name)
+            for i in dependencies:
+                build(chroot, moduleset, moduleset[i], force, recursive)
 
     BUILD_DIR = os.path.join(chroot.get_home_dir(), 'tmp-build-dir',
                              '%s-%s' % (module.name, module['Version']))
@@ -50,7 +57,9 @@ def main(chroot, moduleset, args):
     module = moduleset[args[0]]
 
     try:
-        build(chroot, moduleset, module)
+        force = '-f' in args or '--force' in args
+        recursive = '-f' in args or '--recursive' in args
+        build(chroot, moduleset, module, force=force, recursive=recursive)
 
     except Exception, e:
         print red(e)
