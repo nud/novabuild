@@ -11,6 +11,9 @@ from novabuild.misc import check_code
 
 
 class BuildMethod(base.BuildMethod):
+    def get_debian_dir(self, module):
+        return os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
+
     # Set up the dpkg environment for the build.
     def setup_build_env(self, debian_dir, build_dir, module):
         self.uncompress_tarball(module, build_dir)
@@ -39,8 +42,6 @@ class BuildMethod(base.BuildMethod):
     def update_changelog(self, module, build_dir, debian_dir):
         filename = os.path.join(build_dir, 'debian', 'changelog')
         version = "%s-novacom.%s" % (module['Version'], module['Build-Number'])
-        if 'Packaging-Version' in module:
-            version = '%s:%s' % (module['Packaging-Version'], version)
 
         if not changelog_is_up_to_date(filename, version):
             old_filename = os.path.join(debian_dir, 'changelog')
@@ -63,7 +64,7 @@ class BuildMethod(base.BuildMethod):
 
 
     def build_module(self, module, build_dir):
-        debian_dir = os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
+        debian_dir = self.get_debian_dir(module)
 
         print blue('Set up dpkg build environment')
         self.setup_build_env(debian_dir, build_dir, module)
@@ -75,3 +76,22 @@ class BuildMethod(base.BuildMethod):
 
         print blue("Building '%s' '%s'" % (module.name, module['Version']))
         self.build(module)
+
+    def list_module_packages(self, module):
+        control = PackageControlParser()
+        control.read(os.path.join(self.get_debian_dir(module), 'control'))
+
+        version = module['Version']
+        if module['Build-Number']:
+            version = "%s-novacom.%s" % (version, module['Build-Number'])
+
+        packages = []
+        for package in control.sections:
+            name = package['Package']
+            arch = package['Architecture']
+            if arch == 'any':
+                arch = 'i386'
+
+            packages.append('%s_%s_%s.deb' % (name, version, arch))
+
+        return packages

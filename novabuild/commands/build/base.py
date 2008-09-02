@@ -2,6 +2,7 @@
 
 from exceptions import NotImplementedError
 
+import os
 from novabuild.run import system
 from novabuild.colours import blue
 from novabuild.misc import check_code
@@ -36,3 +37,12 @@ class BuildMethod(object):
 
     def build_module(self, module, build_dir):
         raise NotImplementedError('You must implement the build_module method')
+
+    def list_module_packages(self, module):
+        raise NotImplementedError('You must implement the list_module_packages method')
+
+    def module_is_built(self, module):
+        for package in self.list_module_packages(module):
+            if not os.path.exists(os.path.join('repository', package)):
+                return False
+        return True

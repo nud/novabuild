@@ -7,16 +7,20 @@ from novabuild.misc import check_code
 from exceptions import Exception
 
 
-def build_module(module, chroot, moduleset, build_dir):
+def get_build_method(module, chroot, moduleset):
     print blue("Using build method '%s'" % module['Build-Method'])
 
     pymodule = __import__("novabuild.commands.build.%s" % module['Build-Method'],
                           globals(), locals(), ["BuildMethod"])
-    method = pymodule.BuildMethod(chroot, moduleset)
-    method.build_module(module, build_dir)
+    return pymodule.BuildMethod(chroot, moduleset)
 
 
 def build(chroot, moduleset, module):
+    method = get_build_method(module, chroot, moduleset)
+    if method.module_is_built(module):
+        print blue("Module '%s' has already been built" % module.name)
+        return False
+
     BUILD_DIR = os.path.join(chroot.get_home_dir(), 'tmp-build-dir',
                              '%s-%s' % (module.name, module['Version']))
 
@@ -26,7 +30,7 @@ def build(chroot, moduleset, module):
     code = system('mkdir -p %s' % os.path.dirname(BUILD_DIR))
     check_code(code, module)
 
-    build_module(module, chroot, moduleset, BUILD_DIR)
+    method.build_module(module, BUILD_DIR)
 
     if module['Install']:
         packages_to_install = [i.strip() for i in module['Install'].split(',')]
@@ -39,6 +43,7 @@ def build(chroot, moduleset, module):
             check_code(code, module)
 
     code = system('mv -f %s/*.deb repository/' % os.path.dirname(BUILD_DIR))
+    return True
 
 
 def main(chroot, moduleset, args):

@@ -88,6 +88,10 @@ class BasicControlParser(object):
     def __iter__(self):
         return iter(self._sections)
 
+    @property
+    def sections(self):
+        return self._sections
+
     def dump(self):
         return '\n'.join(section.dump() for section in self._sections)
 
