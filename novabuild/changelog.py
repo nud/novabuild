@@ -15,14 +15,14 @@ DEFAULT_EMAIL = "dsandras@novacom.be"
 
 # Simple class for comparing debian versions.
 class Version(object):
-    PATTERN = re.compile('^(?:([0-9]+):)?([0-9\.]+)(?:-novacom.([0-9]+))?$')
+    PATTERN = re.compile('^(?:([0-9]+):)?([0-9a-z_~.-]+)(?:-novacom.([0-9]+))?$')
 
     def __init__(self, string):
         matches = self.PATTERN.match(string)
         if not matches:
             raise Exception("Invalid version number: %s" % string)
         self.packaging = int(matches.group(1) or 0)
-        self.numbers = [int(i) for i in matches.group(2).split('.')]
+        self.numbers = [int(i) for i in re.split('[^0-9]+', matches.group(2))]
         self.buildnumber = int(matches.group(3) or 0)
 
     def __cmp__(self, other):
@@ -57,7 +57,7 @@ def changelog_is_up_to_date(filename, version):
 
     # We don't want to allow diminishing the current version number.
     if version < lv:
-        raise Exception('The new version number is lower than the old one!')
+        raise Exception('The new version number (%s) is lower than the old one (%s)!' % (version, lv))
 
     # The changelog is up to date iff the old version is the same as the new one.
     return version == lv
