@@ -16,6 +16,7 @@ class BuildMethod(classic.BuildMethod):
     def get_wrapper_script(self):
         return ''.join(["export KVERS=%s\n" % self.moduleset['linux']['Version'],
                         "export LINUX=/usr/src/linux-headers-$KVERS\n",
+                        "export KSRC=$LINUX\n",
                         "export USE_SANGOMA=1\n",
                         "exec fakeroot dpkg-buildpackage\n"])
 
