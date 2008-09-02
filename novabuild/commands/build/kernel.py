@@ -31,4 +31,6 @@ class BuildMethod(base.BuildMethod):
 
     def list_module_packages(self, module):
         version = module['Version']
-        return ["linux-%s-%s_%s_i386.deb" % (p, version, self.REV_TAG) for m in ('headers', 'image', 'source')]
+        return ["linux-headers-%s_%s_i386.deb" % (version, self.REV_TAG),
+                "linux-image-%s_%s_i386.deb" % (version, self.REV_TAG),
+                "linux-source-%s_%s_all.deb" % (version, self.REV_TAG)]
