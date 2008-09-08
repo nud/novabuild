@@ -65,7 +65,7 @@ class ModuleSet(BasicControlParser):
     def __init__(self, moduleset):
         BasicControlParser.__init__(self)
         self._sections = {}
-        self.read(os.path.join('modulesets', moduleset))
+        self.read(moduleset)
 
     def append_section(self, section):
         self._sections[section['Module']] = section

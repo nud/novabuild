@@ -49,8 +49,15 @@ if len(args) < 1:
     sys.exit(2)
 
 # Arguments to pass to the commands
-chroot = chroot_name and Chroot(chroot_name) or None
-moduleset = moduleset_name and ModuleSet(moduleset_name) or None
+chroot = None
+if chroot_name:
+    chroot = Chroot(chroot_name)
+
+moduleset = None
+if moduleset_name:
+    filename = os.path.join('autobuild', 'modulesets', moduleset_name)
+    moduleset = ModuleSet(filename)
+
 command = args[0]
 args = args[1:]
 
