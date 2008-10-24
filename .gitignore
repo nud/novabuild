@@ -1,4 +1,4 @@
 *.pyc
 /tarballs
 /repository
-/debian
+/autobuild

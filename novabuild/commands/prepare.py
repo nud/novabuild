@@ -4,10 +4,10 @@ import os, sys
 import getopt
 from novabuild.run import system
 from novabuild.colours import red, blue
-import novabuild.env as env
+from novabuild import env
 
 def usage():
-    print sys.argv[0] + ' [--help] [--verbose] [--distro=distro] [--name=name]'
+    print sys.argv[0] + ' [--help] [--distro=distro]'
 
 def main(chroot, args):
     # Get the user name.
@@ -20,22 +20,19 @@ def main(chroot, args):
     ########################################################################
 
     try:
-        opts, args = getopt.getopt(args, 'hvd:n:',
-                                   ['help', 'verbose', 'distro=', 'name='])
+        opts, args = getopt.getopt(args, 'hd:',
+                                   ['help', 'distro=',])
     except getopt.GetoptError, e:
         # print help information and exit:
         print str(e) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     
-    debian_mirror = 'http://ftp.be.debian.org/debian'
+    debian_mirror = 'http://ftp.debian.org/debian'
     distro = 'etch'
-    verbose = False
     
     for o, a in opts:
-        if o in ('-v', '--verbose'):
-            verbose = True
-        elif o in ('-h', '--help'):
+        if o in ('-h', '--help'):
             usage()
             sys.exit(0)
         elif o in ('-d', '--distro'):
@@ -43,18 +40,32 @@ def main(chroot, args):
 
     chroot_path = os.path.join(chroot_base, user + '-' + chroot.name)
     
-    if os.path.exists(chroot_path):
-        print blue("Directory '%s' already exists!" % chroot_path)
-        sys.exit(0)
-    
     ########################################################################
-    
-    print blue("Setup the chroot in '%s'" % chroot_path)
 
-    code = system('debootstrap --variant=buildd %s %s %s' % (distro, chroot_path, debian_mirror))
+    if not os.path.exists(chroot_path):
+        print blue("Setup the chroot in '%s'" % chroot_path)
+
+        code = system('debootstrap --variant=buildd %s %s %s' % (distro, chroot_path, debian_mirror))
+        if code != 0:
+             print red("Cound not bootstrap the chroot.")
+             sys.exit(1)
+
+    ########################################################################
+
+    print blue("Ensure the /root directory exists")
+    code = system('mkdir -p %s' % chroot.abspath('/root', internal=False))
+
+    print blue("Create home directory for user '%s'" % user)
+    homedir = chroot.abspath('~/', internal=False)
+    code = system('mkdir -p %s' % homedir)
     if code != 0:
-         print red("Cound not bootstrap the chroot.")
-         sys.exit(1)
+        print red("Could not create the home directory")
+        sys.exit(1)
+
+    code = system('chown %s:%s %s' % (user, user, homedir))
+    if code != 0:
+        print red("Could not set the home directory ownership")
+        sys.exit(1)
 
     ########################################################################
     
@@ -103,25 +114,13 @@ def main(chroot, args):
 
     ########################################################################
 
-    print blue("Create home directory for user '%s'" % user)
-    code = chroot.system('mkdir /home/%s' % user, root=True)
-    if code != 0:
-        print red("Could not create the home directory")
-        sys.exit(1)
-
-    code = chroot.system('chown %s:%s /home/%s' % (user, user, user), root=True)
-    if code != 0:
-        print red("Could not set the home directory ownership")
-        sys.exit(1)
-
-    ########################################################################
-
     print blue("Installing software required for packaging")
 
     # What packages should we install?
     to_install = (
         'dpkg-dev',
         'debhelper',
+        'dpatch',
         'kernel-package',
         'fakeroot',
         'bzip2',
@@ -129,7 +128,7 @@ def main(chroot, args):
         'vim',
     )
 
-    code = chroot.system('apt-get -y -u install ' + ' '.join(to_install), root=True)
+    code = chroot.system('apt-get install ' + ' '.join(to_install), root=True)
     if code != 0:
         print red("Could not install additional packages")
         sys.exit(1)
@@ -137,6 +136,6 @@ def main(chroot, args):
     ########################################################################
 
     print blue("Bootstraping done")
-    print blue("Use 'schroot -c %s-%s -d /home/%s' for further access to your chroot environment."
-                % (user, chroot.name, user))
+    print blue("Use 'schroot -c %s-%s -d %s' for further access to your chroot environment."
+                % (user, chroot.name, chroot.get_home_dir()))
     sys.exit(0)
