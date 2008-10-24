@@ -49,7 +49,10 @@ def build(chroot, moduleset, module, force=False, recursive=False):
             code = chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
             check_code(code, module)
 
-    code = system('mv -f %s/*.deb repository/' % os.path.dirname(BUILD_DIR))
+    repo_dir = 'repository-%s' % chroot.name
+    if not os.path.exists(repo_dir):
+        os.mkdir(repo_dir)
+    code = system('mv -f %s/*.deb %s/' % (os.path.dirname(BUILD_DIR), repo_dir))
     return True
 
 
