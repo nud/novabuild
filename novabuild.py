@@ -61,9 +61,6 @@ if moduleset_name:
 command = args[0]
 args = args[1:]
 
-print opts
-print args
-
 if command == 'shell':
     commands.shell.main(chroot, args)
 

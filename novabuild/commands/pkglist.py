@@ -14,8 +14,6 @@ def list_packages(moduleset):
     print "Category           Package Name                 Version         Source URI"
     print "---------          -------------                --------        -----------"
 
-    print moduleset.sections.values()
-
     for module in sorted(moduleset._sections.values(), cmp_by('Category', 'Module')):
         items = {
             'category': module['Category'],
