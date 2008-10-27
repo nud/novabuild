@@ -68,7 +68,7 @@ if command == 'prepare':
     commands.prepare.main(chroot, args)
 
 if command == 'list':
-    commands.pkglist.main(moduleset, args)
+    commands.pkglist.main(chroot, moduleset, args)
 
 if command == 'fetch':
     commands.fetch.main(moduleset, args)

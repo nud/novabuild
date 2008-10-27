@@ -7,8 +7,9 @@ from novabuild.misc import check_code
 from exceptions import Exception
 
 
-def get_build_method(module, chroot, moduleset):
-    print blue("Using build method '%s'" % module['Build-Method'])
+def get_build_method(module, chroot, moduleset, quiet=False):
+    if not quiet:
+        print blue("Using build method '%s'" % module['Build-Method'])
 
     pymodule = __import__("novabuild.commands.build.%s" % module['Build-Method'],
                           globals(), locals(), ["BuildMethod"])
