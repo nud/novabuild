@@ -5,7 +5,8 @@ from novabuild.run import system
 from novabuild.colours import blue
 from novabuild.misc import check_code
 
-IONCUBE = "/usr/local/bin/ioncube/ioncube_encoder5"
+IONCUBE4 = "/usr/local/bin/ioncube/ioncube_encoder"
+IONCUBE5 = "/usr/local/bin/ioncube/ioncube_encoder5"
 
 class BuildMethod(classic.BuildMethod):
     # Set up the dpkg environment for the build.
@@ -16,7 +17,13 @@ class BuildMethod(classic.BuildMethod):
 
         print blue("Encoding PHP files")
 
-        code = system('%s --optimize max %s -o %s' % (IONCUBE, orig_dir, build_dir))
+        try:
+            php_version = int(module['PHP-Version'])
+        except:
+            php_version = 5
+
+        ioncube = php_version == 5 and IONCUBE5 or IONCUBE4
+        code = system('%s --optimize max %s -o %s' % (ioncube, orig_dir, build_dir))
         check_code(code, module)
 
         code = system('rm -rf %s' % orig_dir)
