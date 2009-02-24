@@ -21,7 +21,7 @@ def main(chroot, args):
     
     chroot_base = '/chroots'
     debian_mirror = 'http://ftp.debian.org/debian'
-    distro = 'etch'
+    distro = 'lenny'
     
     for o, a in opts:
         if o in ('-h', '--help'):
