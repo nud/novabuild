@@ -58,12 +58,12 @@ def build(chroot, moduleset, module, force=False, recursive=False):
 
 
 def main(chroot, moduleset, args):
-    module = moduleset[args[0]]
-
     try:
         force = '-f' in args or '--force' in args
         recursive = '-f' in args or '--recursive' in args
-        build(chroot, moduleset, module, force=force, recursive=recursive)
+        for arg in [x for x in args if not x.startswith('-')]:
+            module = moduleset[arg]
+            build(chroot, moduleset, module, force=force, recursive=recursive)
 
     except Exception, e:
         print red(e)
