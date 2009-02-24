@@ -80,12 +80,23 @@ class BuildMethod(base.BuildMethod):
         self.build(module)
 
     def list_module_packages(self, module):
-        control = PackageControlParser()
-        control.read(os.path.join(self.get_debian_dir(module), 'control'))
+        debiandir = self.get_debian_dir(module)
 
-        version = module['Version']
-        if module['Build-Number']:
-            version = "%s-beip.%s" % (version, module['Build-Number'])
+        control = PackageControlParser()
+        control.read(os.path.join(debiandir, 'control'))
+
+        version = "%s-beip.%s" % (module['Version'], module['Build-Number'])
+        if 'Packaging-Version' in module:
+            version = "%s:%s" % (module['Packaging-Version'], version)
+
+        # Imported package sometimes don't have the same "local tag" as ours.
+        # FIXME: this code is mostly duplicated from changelog.py
+        if changelog_is_up_to_date(os.path.join(debiandir, 'changelog'), version):
+            line = file(os.path.join(debiandir, 'changelog'), 'r').readline()
+            version = re.match('^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)', line, re.I).group(2)
+
+        if ':' in version:
+            version = version.split(':',1)[1]
 
         packages = []
         for package in control.sections:
