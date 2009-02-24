@@ -8,7 +8,7 @@ from novabuild.misc import check_code
 
 
 class BuildMethod(base.BuildMethod):
-    REV_TAG="novacom.i386.3.0"
+    REV_TAG="beip.i386.3.0"
 
     # Set up the dpkg environment for the build.
     def setup_build_env(self, module, build_dir):

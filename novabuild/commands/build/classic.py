@@ -41,7 +41,7 @@ class BuildMethod(base.BuildMethod):
     # Write a new changelog entry...
     def update_changelog(self, module, build_dir, debian_dir):
         filename = os.path.join(build_dir, 'debian', 'changelog')
-        version = "%s-novacom.%s" % (module['Version'], module['Build-Number'])
+        version = "%s-beip.%s" % (module['Version'], module['Build-Number'])
         if 'Packaging-Version' in module:
             version = "%s:%s" % (module['Packaging-Version'], version)
 
@@ -85,7 +85,7 @@ class BuildMethod(base.BuildMethod):
 
         version = module['Version']
         if module['Build-Number']:
-            version = "%s-novacom.%s" % (version, module['Build-Number'])
+            version = "%s-beip.%s" % (version, module['Build-Number'])
 
         packages = []
         for package in control.sections:

@@ -9,13 +9,13 @@ from email.Utils import formatdate
 from exceptions import Exception
 
 
-DEFAULT_AUTHOR = "Damien Sandras"
-DEFAULT_EMAIL = "dsandras@novacom.be"
+DEFAULT_AUTHOR = "Novabuild"
+DEFAULT_EMAIL = "support@beip.be"
 
 
 # Simple class for comparing debian versions.
 class Version(object):
-    PATTERN = re.compile('^(?:([0-9]+):)?([0-9a-z_~.-]+)(?:-novacom.([0-9]+))?$')
+    PATTERN = re.compile('^(?:([0-9]+):)?([0-9a-z_~.-]+)(?:-beip.([0-9]+))?$')
 
     def __init__(self, string):
         matches = self.PATTERN.match(string)
@@ -35,12 +35,12 @@ class Version(object):
         if self.packaging:
             s = "%d:%s" % (self.packaging, s)
         if self.buildnumber:
-            s = "%s-novacom.%d" % (s, self.buildnumber)
+            s = "%s-beip.%d" % (s, self.buildnumber)
         return s
 
 
 # Example of changelog line:
-#   asterisk (1:1.2.24-novacom.1) stable; urgency=low
+#   asterisk (1:1.2.24-beip.1) stable; urgency=low
 # Pattern used in parsechangelog/debian:
 #   m/^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)((\s+[-+0-9a-z.]+)+)\;/i
 def parse_changelog_header(line):
