@@ -3,7 +3,13 @@
 import os
 
 def get_user_name():
-    return os.getenv('SUDO_USER') or os.getenv('USER')
+    try:
+        return os.getenv('SUDO_USER') or os.getenv('USER')
+    except TypeError:
+        return None
 
 def get_uid():
-    return int(os.getenv('SUDO_UID') or os.getenv('UID'))
+    try:
+        return int(os.getenv('SUDO_UID') or os.getenv('UID'))
+    except TypeError:
+        return None

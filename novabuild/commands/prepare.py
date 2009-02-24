@@ -7,27 +7,19 @@ from novabuild.colours import red, blue
 from novabuild import env
 
 def usage():
-    print sys.argv[0] + ' [--help] [--distro=distro]'
+    print 'sudo ' + sys.argv[0] + ' [--help] [--distro=distro]'
 
 def main(chroot, args):
-    # Get the user name.
-    # Remember are supposed to be ran with sudo
-    user = env.get_user_name()
-    uid = env.get_uid()
-
-    chroot_base = '/chroots'
-    
-    ########################################################################
-
     try:
         opts, args = getopt.getopt(args, 'hd:',
-                                   ['help', 'distro=',])
+                                   ['help', 'distro='])
     except getopt.GetoptError, e:
         # print help information and exit:
         print str(e) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     
+    chroot_base = '/chroots'
     debian_mirror = 'http://ftp.debian.org/debian'
     distro = 'etch'
     
@@ -37,6 +29,15 @@ def main(chroot, args):
             sys.exit(0)
         elif o in ('-d', '--distro'):
             distro = a
+
+    # Get the user name.
+    # Remember we are supposed to be ran with sudo
+    user = env.get_user_name()
+    uid = env.get_uid()
+
+    if not user or not uid:
+        usage()
+        sys.exit(1)
 
     chroot_path = os.path.join(chroot_base, user + '-' + chroot.name)
     
