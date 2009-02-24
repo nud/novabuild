@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
+import os.path
+
 import classic
 from novabuild.run import system
 from novabuild.colours import blue
 from novabuild.misc import check_code
 
-IONCUBE4 = "/usr/local/bin/ioncube/ioncube_encoder"
-IONCUBE5 = "/usr/local/bin/ioncube/ioncube_encoder5"
+IONCUBE_DIR = "/opt/ioncube"
+IONCUBE4 = os.path.join(IONCUBE_DIR, "ioncube_encoder")
+IONCUBE5 = os.path.join(IONCUBE_DIR, "ioncube_encoder5")
 
 class BuildMethod(classic.BuildMethod):
     # Set up the dpkg environment for the build.
