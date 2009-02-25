@@ -61,7 +61,7 @@ class BuildMethod(base.BuildMethod):
     # Build the module
     def build(self, module):
         cwd = self.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
-        code = self.chroot.system('fakeroot dpkg-buildpackage', cwd=cwd)
+        code = self.chroot.system('dpkg-buildpackage -rfakeroot -b -uc', cwd=cwd)
         check_code(code, module)
 
 
