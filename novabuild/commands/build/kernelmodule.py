@@ -18,7 +18,7 @@ class BuildMethod(classic.BuildMethod):
                         "export LINUX=/usr/src/linux-headers-$KVERS\n",
                         "export KSRC=$LINUX\n",
                         "export USE_SANGOMA=1\n",
-                        "exec fakeroot dpkg-buildpackage\n"])
+                        "exec dpkg-buildpackage -rfakeroot -b -uc\n"])
 
     def save_wrapper_script(self):
         path = self.chroot.abspath(self.wrapper_script, internal=False)
