@@ -18,7 +18,13 @@ class BuildMethod(base.BuildMethod):
     def setup_build_env(self, debian_dir, build_dir, module):
         self.uncompress_tarball(module, build_dir)
 
-        code = system('cp -r %s %s/debian' % (debian_dir, build_dir))
+        # Remove the debian dir that would be distributed with the upstream tarball.
+        target_debian_dir = os.path.join(build_dir, 'debian')
+        if (os.path.exists(target_debian_dir)):
+            code = system('rm -rf %s' % target_debian_dir)
+            check_code(code, module)
+
+        code = system('cp -r %s %s' % (debian_dir, target_debian_dir))
         check_code(code, module)
 
 
