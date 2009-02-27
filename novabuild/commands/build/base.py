@@ -6,6 +6,7 @@ import os
 from novabuild.run import system
 from novabuild.colours import blue
 from novabuild.misc import check_code
+from novabuild.commands.fetch import fetch
 
 class BuildMethod(object):
     def __init__(self, chroot, moduleset):
@@ -16,7 +17,7 @@ class BuildMethod(object):
     def uncompress_tarball(self, module, destination):
         filename = os.path.join('tarballs', module['Basename'])
         if not os.path.exists(filename):
-            raise Exception("You must fetch the package '%s' before building it." % module.name)
+            fetch(module)
 
         dest_parent = os.path.dirname(destination)
 
