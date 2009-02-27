@@ -32,8 +32,13 @@ class BuildMethod(object):
 
         # Put the directory in the tarball in the right directory
         if not os.path.exists(destination):
-            code = system('mv %s/* %s' % (dest_parent, destination))
-            #check_code(code, module)  FIXME: we don't want to fail when "cannot move to itself"
+            contents = os.listdir(dest_parent)
+            if len(contents) == 1:
+                check_code(system('mv %s/%s %s' % (dest_parent, contents[0], destination)), module)
+            else:
+                check_code(system('mkdir %s' % destination), module)
+                files = [os.path.join(dest_parent, file) for file in contents]
+                check_code(system('mv %s %s' % (' '.join(files), destination)), module)
 
     def build_module(self, module, build_dir):
         raise NotImplementedError('You must implement the build_module method')
