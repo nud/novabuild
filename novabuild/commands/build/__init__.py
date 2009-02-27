@@ -60,7 +60,7 @@ def build(chroot, moduleset, module, force=False, recursive=False):
 def main(chroot, moduleset, args):
     try:
         force = '-f' in args or '--force' in args
-        recursive = '-f' in args or '--recursive' in args
+        recursive = '-r' in args or '--recursive' in args
         for arg in [x for x in args if not x.startswith('-')]:
             module = moduleset[arg]
             build(chroot, moduleset, module, force=force, recursive=recursive)
