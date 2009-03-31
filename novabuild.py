@@ -19,6 +19,7 @@ def usage():
     print '  fetch          fetch the requested package'
     print '  fetchall       fetch all the packages'
     print '  build          build a single package'
+    print '  buildall       build all the packages'
     print
     print 'Use ' + sys.argv[0] + ' [command] --help for more information.'
 
