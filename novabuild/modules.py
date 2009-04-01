@@ -67,5 +67,8 @@ class ModuleSet(BasicControlParser):
         self._sections = {}
         self.read(moduleset)
 
+    def __contains__(self, item):
+        return item in self._sections
+
     def append_section(self, section):
         self._sections[section['Module']] = section

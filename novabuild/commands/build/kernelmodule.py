@@ -14,7 +14,13 @@ class BuildMethod(classic.BuildMethod):
     wrapper_script = '~/tmp-build-dir/build-wrapper.sh'
 
     def get_wrapper_script(self):
-        return ''.join(["export KVERS=%s\n" % self.moduleset['linux']['Version'],
+        if 'linux' in self.moduleset:
+            kvers = self.moduleset['linux']['Version']
+        else:
+            # FIXME: How god, this is ugly!
+            kvers = '$(/bin/ls /usr/src/ | grep -E "linux-headers-2\.6.*686" | grep -o "2\.6.*686")'
+
+        return ''.join(["export KVERS=%s\n" % kvers,
                         "export LINUX=/usr/src/linux-headers-$KVERS\n",
                         "export KSRC=$LINUX\n",
                         "export USE_SANGOMA=1\n",
