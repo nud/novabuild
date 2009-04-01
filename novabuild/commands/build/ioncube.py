@@ -10,6 +10,7 @@ from novabuild.misc import check_code
 IONCUBE_DIR = "/opt/ioncube"
 IONCUBE4 = os.path.join(IONCUBE_DIR, "ioncube_encoder")
 IONCUBE5 = os.path.join(IONCUBE_DIR, "ioncube_encoder5")
+IONCUBE_ARGS = "--optimize max"
 
 class BuildMethod(classic.BuildMethod):
     # Set up the dpkg environment for the build.
@@ -26,7 +27,7 @@ class BuildMethod(classic.BuildMethod):
             php_version = 5
 
         ioncube = php_version == 5 and IONCUBE5 or IONCUBE4
-        code = system('%s --optimize max %s -o %s' % (ioncube, orig_dir, build_dir))
+        code = system('%s %s %s -o %s' % (ioncube, IONCUBE_ARGS, orig_dir, build_dir))
         check_code(code, module)
 
         code = system('rm -rf %s' % orig_dir)
