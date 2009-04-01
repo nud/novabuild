@@ -12,7 +12,7 @@ def main(chroot, moduleset, args):
             print blue("Building '%s'" % moduleset[module].name)
             build(chroot, moduleset, moduleset[module], recursive=True)
         except Exception, e:
-            print red(e)
-            status = 1
+            print red("Exception %s: %s" % (e.__class__.__name__, e))
+            return 1
 
     sys.exit(status)
