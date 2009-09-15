@@ -90,7 +90,7 @@ def main(chroot, args):
 
     # The actual configuration.
     config = {
-        'type': 'plain',
+        'type': 'directory',
         'location': chroot_path,
         'description': 'Debian %s for user %s' % (distro.capitalize(), user),
         'priority': 3,
