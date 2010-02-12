@@ -56,6 +56,9 @@ class BasicControlParser(object):
                     section = None
                     lastkey = None
                 continue
+
+            if line[0] == ';':
+                continue
             
             if line[0] in ' \t':
                 assert lastkey is not None
