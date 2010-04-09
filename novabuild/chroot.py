@@ -8,6 +8,7 @@ class Chroot(object):
     def __init__(self, name):
         self.user = env.get_user_name()
         self.name = name
+        self.session = None
 
         self.root_dir = '/chroots/%s-%s' % (self.user, self.name)
 
@@ -33,6 +34,16 @@ class Chroot(object):
 
         return os.path.join(self.root_dir, homedir)
 
+    def start_session(self):
+        if self.session is None:
+            cmd = 'schroot -b -c %s-%s' % (self.user, self.name)
+            self.session = run.system(cmd).strip()
+
+    def end_session(self):
+        if self.session is not None:
+            run.system('schroot -e -c %s' % self.session)
+            self.session = None
+
     def system(self, cmd, cwd=None, root=False):
         if root:
             user = 'root'
@@ -41,5 +52,10 @@ class Chroot(object):
             user = self.user
             if cwd is None: cwd = '/home/%s' % user
 
-        cmd = 'schroot -u %s -c %s-%s -d %s -- %s' % (user, self.user, self.name, cwd, cmd)
+        if self.session is not None:
+            opts = '-r -c %s' % self.session
+        else:
+            opts = '-c %s-%s' % (self.user, self.name)
+
+        cmd = 'schroot -u %s %s -d %s -- %s' % (user, opts, cwd, cmd)
         return run.system(cmd)
