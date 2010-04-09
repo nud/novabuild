@@ -61,29 +61,38 @@ if moduleset_name:
 
 command = args[0]
 args = args[1:]
+status = -1
 
-if command == 'shell':
-    status = commands.shell.main(chroot, args)
+try:
 
-elif command == 'prepare':
-    status = commands.prepare.main(chroot, args)
+    if command == 'shell':
+        status = commands.shell.main(chroot, args)
 
-elif command == 'list':
-    status = commands.pkglist.main(chroot, moduleset, args)
+    elif command == 'prepare':
+        chroot.start_session()
+        status = commands.prepare.main(chroot, args)
 
-elif command == 'fetch':
-    status = commands.fetch.main(moduleset, args)
+    elif command == 'list':
+        status = commands.pkglist.main(chroot, moduleset, args)
 
-elif command == 'fetchall':
-    status = commands.fetchall.main(moduleset, args)
+    elif command == 'fetch':
+        status = commands.fetch.main(moduleset, args)
 
-elif command == 'build':
-    status = commands.build.main(chroot, moduleset, args)
+    elif command == 'fetchall':
+        status = commands.fetchall.main(moduleset, args)
 
-elif command == 'buildall':
-    status = commands.buildall.main(chroot, moduleset, args)
+    elif command == 'build':
+        chroot.start_session()
+        status = commands.build.main(chroot, moduleset, args)
 
-elif command == 'installpackages':
-    status = commands.installpackages.main(chroot, moduleset, args)
+    elif command == 'buildall':
+        chroot.start_session()
+        status = commands.buildall.main(chroot, moduleset, args)
 
-sys.exit(status)
+    elif command == 'installpackages':
+        chroot.start_session()
+        status = commands.installpackages.main(chroot, moduleset, args)
+
+finally:
+    chroot.end_session()
+    sys.exit(status)
