@@ -63,25 +63,27 @@ command = args[0]
 args = args[1:]
 
 if command == 'shell':
-    commands.shell.main(chroot, args)
+    status = commands.shell.main(chroot, args)
 
-if command == 'prepare':
-    commands.prepare.main(chroot, args)
+elif command == 'prepare':
+    status = commands.prepare.main(chroot, args)
 
-if command == 'list':
-    commands.pkglist.main(chroot, moduleset, args)
+elif command == 'list':
+    status = commands.pkglist.main(chroot, moduleset, args)
 
-if command == 'fetch':
-    commands.fetch.main(moduleset, args)
+elif command == 'fetch':
+    status = commands.fetch.main(moduleset, args)
 
-if command == 'fetchall':
-    commands.fetchall.main(moduleset, args)
+elif command == 'fetchall':
+    status = commands.fetchall.main(moduleset, args)
 
-if command == 'build':
-    commands.build.main(chroot, moduleset, args)
+elif command == 'build':
+    status = commands.build.main(chroot, moduleset, args)
 
-if command == 'buildall':
-    commands.buildall.main(chroot, moduleset, args)
+elif command == 'buildall':
+    status = commands.buildall.main(chroot, moduleset, args)
 
-if command == 'installpackages':
-    commands.installpackages.main(chroot, moduleset, args)
+elif command == 'installpackages':
+    status = commands.installpackages.main(chroot, moduleset, args)
+
+sys.exit(status)

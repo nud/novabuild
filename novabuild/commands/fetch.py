@@ -68,6 +68,7 @@ def main(moduleset, args):
     module = moduleset[args[0]]
     try:
         fetch(module)
+        return 0
     except Exception, e:
         print red(e)
-        sys.exit(1)
+        return 1

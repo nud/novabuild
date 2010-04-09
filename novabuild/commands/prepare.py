@@ -17,7 +17,7 @@ def main(chroot, args):
         # print help information and exit:
         print str(e) # will print something like "option -a not recognized"
         usage()
-        sys.exit(2)
+        return 2
     
     chroot_base = '/chroots'
     debian_mirror = 'http://ftp.debian.org/debian'
@@ -26,7 +26,7 @@ def main(chroot, args):
     for o, a in opts:
         if o in ('-h', '--help'):
             usage()
-            sys.exit(0)
+            return 0
         elif o in ('-d', '--distro'):
             distro = a
 
@@ -37,7 +37,7 @@ def main(chroot, args):
 
     if not user or not uid:
         usage()
-        sys.exit(1)
+        return 1
 
     chroot_path = os.path.join(chroot_base, user + '-' + chroot.name)
     
@@ -49,7 +49,7 @@ def main(chroot, args):
         code = system('debootstrap --variant=buildd %s %s %s' % (distro, chroot_path, debian_mirror))
         if code != 0:
              print red("Cound not bootstrap the chroot.")
-             sys.exit(1)
+             return 1
 
     ########################################################################
 
@@ -61,12 +61,12 @@ def main(chroot, args):
     code = system('mkdir -p %s' % homedir)
     if code != 0:
         print red("Could not create the home directory")
-        sys.exit(1)
+        return 1
 
     code = system('chown %s:%s %s' % (user, user, homedir))
     if code != 0:
         print red("Could not set the home directory ownership")
-        sys.exit(1)
+        return 1
 
     ########################################################################
     
@@ -132,11 +132,11 @@ def main(chroot, args):
     code = chroot.system('apt-get install ' + ' '.join(to_install), root=True)
     if code != 0:
         print red("Could not install additional packages")
-        sys.exit(1)
+        return 1
 
     ########################################################################
 
     print blue("Bootstraping done")
     print blue("Use 'schroot -c %s-%s -d %s' for further access to your chroot environment."
                 % (user, chroot.name, chroot.get_home_dir()))
-    sys.exit(0)
+    return 0

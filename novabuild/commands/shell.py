@@ -5,5 +5,4 @@ import sys
 
 def main(chroot, args):
     is_root = '-r' in args or '--root' in args
-    code = chroot.system('', root = is_root)
-    sys.exit(code)
+    return chroot.system('', root = is_root)

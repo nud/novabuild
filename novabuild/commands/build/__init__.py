@@ -64,7 +64,8 @@ def main(chroot, moduleset, args):
         for arg in [x for x in args if not x.startswith('-')]:
             module = moduleset[arg]
             build(chroot, moduleset, module, force=force, recursive=recursive)
+        return 0
 
     except Exception, e:
         print red(e)
-        sys.exit(1)
+        return 1
