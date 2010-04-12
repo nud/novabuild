@@ -7,6 +7,7 @@ from novabuild.modules import ModuleSet
 import sys
 import os
 import getopt
+import traceback
 
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -93,6 +94,10 @@ try:
         chroot.start_session()
         status = commands.installpackages.main(chroot, moduleset, args)
 
-finally:
+except:
+    traceback.print_exc()
+    status = -1
+
+if chroot is not None:
     chroot.end_session()
-    sys.exit(status)
+sys.exit(status)
