@@ -37,7 +37,7 @@ class Chroot(object):
     def start_session(self):
         if self.session is None:
             cmd = 'schroot -b -c %s-%s' % (self.user, self.name)
-            self.session = run.system(cmd).strip()
+            self.session = run.run(cmd)[-1].strip()
 
     def end_session(self):
         if self.session is not None:

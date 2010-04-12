@@ -70,7 +70,6 @@ try:
         status = commands.shell.main(chroot, args)
 
     elif command == 'prepare':
-        chroot.start_session()
         status = commands.prepare.main(chroot, args)
 
     elif command == 'list':

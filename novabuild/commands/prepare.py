@@ -129,6 +129,7 @@ def main(chroot, args):
         'vim',
     )
 
+    chroot.start_session()
     code = chroot.system('apt-get install ' + ' '.join(to_install), root=True)
     if code != 0:
         print red("Could not install additional packages")
