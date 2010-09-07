@@ -18,7 +18,7 @@ class BuildMethod(classic.BuildMethod):
             kvers = self.moduleset['linux']['Version']
         else:
             # FIXME: How god, this is ugly!
-            kvers = '$(/bin/ls /usr/src/ | grep -E "linux-headers-2\.6.*686" | grep -o "2\.6.*686")'
+            kvers = '$(/bin/ls /usr/src/ | grep -E "linux-headers-2\.6.*686-bigmem" | grep -o "2\.6.*686-bigmem")'
 
         return ''.join(["export KVERS=%s\n" % kvers,
                         "export LINUX=/usr/src/linux-headers-$KVERS\n",
