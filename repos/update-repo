@@ -1,0 +1,60 @@
+#!/usr/bin/python
+
+## Some configuration ##
+
+# The location where to put the generated APT repository
+base = '/var/www/repository/bx'
+
+# The dist name.
+dist = 'boomer'
+
+# The users where to find the novabuild-generated repos.
+users = ['sfrecinaux', 'dsandras']
+
+## The actual script ##
+
+repos = ['/home/%s/build/repository-%s' % (user, dist) for user in users]
+
+import os
+import datetime
+import re
+
+def red(s): return "\033[31m" + str(s) + "\033[0m"
+def green(s): return "\033[32m" + str(s) + "\033[0m"
+def blue(s): return "\033[34m" + str(s) + "\033[0m"
+def brown(s): return "\033[33m" + str(s) + "\033[0m"
+
+try:
+    blacklist = [line.strip() for line in file(os.path.join(base, 'conf/blacklist-'+dist)).readlines()]
+except IOError:
+    blacklist = []
+print blacklist
+
+packages = {}
+for repo in repos:
+    for filename in os.listdir(repo):
+        if not filename.endswith('.deb'):
+            continue
+        basename = os.path.splitext(filename)[0]
+        name, version, _ = basename.split('_')
+        if name in blacklist:
+            continue;
+
+        version = [x.isdigit() and int(x) or x for x in re.split('[.-]', version)]
+
+        full_filename = os.path.join(repo, filename)
+        spec = (version, os.path.getmtime(full_filename), full_filename)
+
+        if not name in packages:
+            packages[name] = spec
+        else:
+            packages[name] = max(packages[name], spec)
+
+for name in sorted(packages):
+    builder = packages[name][2].split('/')[2]
+    print red("%s %s" % (name, packages[name][0])), "built on " + blue(datetime.datetime.fromtimestamp(packages[name][1])) + " by " + green(builder)
+    cmd = 'reprepro -vb "%s" -C main includedeb %s "%s"' % (base, dist, packages[name][2])
+    print brown(cmd)
+    os.system(cmd)
+
+# ex:set ts=4 et:
