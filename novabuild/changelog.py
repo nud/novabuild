@@ -22,7 +22,7 @@ class Version(object):
         if not matches:
             raise Exception("Invalid version number: %s" % string)
         self.packaging = int(matches.group(1) or 0)
-        self.numbers = [int(i) for i in re.split('[^0-9]+', matches.group(2))]
+        self.numbers = [int(i) for i in re.split('[^0-9]+', matches.group(2)) if i]
         self.buildnumber = int(matches.group(3) or 0)
 
     def __cmp__(self, other):

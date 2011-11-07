@@ -91,15 +91,12 @@ def main(chroot, args):
     # The actual configuration.
     config = {
         'type': 'directory',
-        'location': chroot_path,
+        'directory': chroot_path,
         'description': 'Debian %s for user %s' % (distro.capitalize(), user),
-        'priority': 3,
         'groups': 'root',
         'root-groups': 'root',
         'users': ['root', user],
         'root-users': ['root', user],
-        'run-setup-scripts': True,
-        'run-exec-scripts': True,
     }
     
     # Dump the configuration into schroot.conf

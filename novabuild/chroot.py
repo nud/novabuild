@@ -28,11 +28,9 @@ class Chroot(object):
 
     def get_home_dir(self, root=False):
         if root:
-            homedir = 'root'
+            return os.path.join(self.root_dir, 'root')
         else:
-            homedir = 'home/%s' % self.user
-
-        return os.path.join(self.root_dir, homedir)
+            return '/home/%s' % self.user
 
     def start_session(self):
         if self.session is None:
