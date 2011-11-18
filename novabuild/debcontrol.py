@@ -57,7 +57,7 @@ class BasicControlParser(object):
                     lastkey = None
                 continue
 
-            if line[0] == ';':
+            if line[0] == '#':
                 continue
             
             if line[0] in ' \t':
@@ -69,7 +69,7 @@ class BasicControlParser(object):
                     section[lastkey] += '\n' + line
                 continue
 
-            assert ':' in line
+            assert ':' in line, line
             
             key, value = [bit.strip() for bit in line.split(':', 1)]
 
