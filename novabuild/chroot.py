@@ -21,7 +21,9 @@ class Chroot(object):
             if cwd is None: cwd = homedir
             path = os.path.join(cwd, path)
 
-        if not internal:
+        # Lately schroot has been mounting the real home directory into the chroot,
+        # so we need to return the real homedir in any case.
+        if not internal and not path.startswith(homedir):
             path = os.path.join(self.root_dir, path[1:])
 
         return path
