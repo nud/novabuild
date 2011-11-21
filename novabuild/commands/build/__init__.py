@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
-import os, sys, glob
+import os, sys, glob, traceback
 from novabuild.run import system
 from novabuild.colours import red, blue
 from novabuild.misc import check_code
@@ -67,5 +67,5 @@ def main(chroot, moduleset, args):
         return 0
 
     except Exception, e:
-        print red(e)
+        traceback.print_exc()
         return 1

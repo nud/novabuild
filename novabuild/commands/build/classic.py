@@ -44,12 +44,17 @@ class BuildMethod(base.BuildMethod):
             check_code(code, module)
 
 
+    def get_version(self, module):
+        version = "%s-beip-%s%s" % (module['Version'], self.chroot.name[0:3], module['Build-Number'])
+        if 'Packaging-Version' in module:
+            version = "%s:%s" % (module['Packaging-Version'], version)
+        return version
+
+
     # Write a new changelog entry...
     def update_changelog(self, module, build_dir, debian_dir):
         filename = os.path.join(build_dir, 'debian', 'changelog')
-        version = "%s-beip.%s" % (module['Version'], module['Build-Number'])
-        if 'Packaging-Version' in module:
-            version = "%s:%s" % (module['Packaging-Version'], version)
+        version = self.get_version(module)
 
         if not changelog_is_up_to_date(filename, version):
             old_filename = os.path.join(debian_dir, 'changelog')
@@ -91,9 +96,7 @@ class BuildMethod(base.BuildMethod):
         control = PackageControlParser()
         control.read(os.path.join(debiandir, 'control'))
 
-        version = "%s-beip.%s" % (module['Version'], module['Build-Number'])
-        if 'Packaging-Version' in module:
-            version = "%s:%s" % (module['Packaging-Version'], version)
+        version = self.get_version(module)
 
         # Imported package sometimes don't have the same "local tag" as ours.
         # FIXME: this code is mostly duplicated from changelog.py
