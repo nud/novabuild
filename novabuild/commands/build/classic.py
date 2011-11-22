@@ -112,7 +112,7 @@ class BuildMethod(base.BuildMethod):
             name = package['Package']
             arch = package['Architecture']
             if arch == 'any':
-                arch = 'i386'
+                arch = os.popen('dpkg --print-architecture').readline().strip()
 
             packages.append('%s_%s_%s.deb' % (name, version, arch))
 
