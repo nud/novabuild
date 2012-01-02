@@ -9,8 +9,13 @@ import os
 import getopt
 import traceback
 
-def usage(args):
-    print 'Usage: %s [command] [options]' % args[0]
+
+class NovabuildError(Exception):
+    pass
+
+
+def usage(binname):
+    print 'Usage: %s [command] [options]' % binname
     print
     print 'available commands:'
     print '  shell          open a shell'
@@ -21,16 +26,29 @@ def usage(args):
     print '  build          build a single package'
     print '  buildall       build all the packages'
     print
-    print 'Use %s [command] --help for more information.' % args[0]
+    print 'Use %s [command] --help for more information.' % binname
+
+
+def ensure_data_dir():
+    cwd = os.getcwd()
+    while True:
+        if os.path.exists(os.path.join(cwd, 'modulesets')):
+            os.chdir(cwd)
+            return
+        cwd = os.path.dirname(cwd)
+        if cwd == '/':
+            raise NovabuildError('Not a novabuild repository (or any of the parent directories)')
 
 
 def main(args):
+    binname = args.pop(0)
+
     try:
-        opts, args = getopt.getopt(args[1:], 'hc:m:', ['help', 'chroot=', 'moduleset='])
+        opts, args = getopt.getopt(args, 'hc:m:', ['help', 'chroot=', 'moduleset='])
     except getopt.GetoptError, e:
         # print help information and exit:
         print str(e) # will print something like "option -a not recognized"
-        usage(args)
+        usage(binname)
         return 2
 
     chroot_name = None
@@ -38,7 +56,7 @@ def main(args):
 
     for o, a in opts:
         if o in ('-h', '--help'):
-            usage(args)
+            usage(binname)
             return 0
         elif o in ('-c', '--chroot'):
             chroot_name = a
@@ -47,8 +65,10 @@ def main(args):
 
     # At least one remaining argument to specify the command.
     if len(args) < 2:
-        usage(args)
+        usage(binname)
         return 2
+
+    ensure_data_dir()
 
     # Arguments to pass to the commands
     chroot = None
@@ -94,7 +114,7 @@ def main(args):
 
         else:
             print "Unknown command: %s" % command
-            usage(args)
+            usage(binname)
             status = 2
     except:
         traceback.print_exc()

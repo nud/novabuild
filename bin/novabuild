@@ -4,5 +4,8 @@
 import novabuild.main
 import sys
 
-error_code = novabuild.main.main(sys.argv)
-sys.exit(error_code)
+try:
+    error_code = novabuild.main.main(sys.argv)
+    sys.exit(error_code)
+except novabuild.main.NovabuildError, e:
+    print e.args[0]
