@@ -12,7 +12,7 @@ from novabuild.misc import check_code
 
 class BuildMethod(base.BuildMethod):
     def get_debian_dir(self, module):
-        return os.path.join('autobuild', 'debian', 'debian-%s' % module.name)
+        return os.path.join('debian', 'debian-%s' % module.name)
 
     # Set up the dpkg environment for the build.
     def setup_build_env(self, debian_dir, build_dir, module):

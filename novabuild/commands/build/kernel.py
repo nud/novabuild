@@ -15,7 +15,7 @@ class BuildMethod(base.BuildMethod):
         self.uncompress_tarball(module, build_dir)
 
         print blue("Configuring the kernel")
-        code = system('cp autobuild/debian/config-%s-i386 %s/.config' % (module['Version'], build_dir))
+        code = system('cp debian/config-%s-i386 %s/.config' % (module['Version'], build_dir))
         check_code(code, module)
 
 

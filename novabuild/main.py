@@ -57,7 +57,7 @@ def main(args):
 
     moduleset = None
     if moduleset_name:
-        filename = os.path.join('autobuild', 'modulesets', moduleset_name)
+        filename = os.path.join('modulesets', moduleset_name)
         moduleset = ModuleSet(filename)
 
     command = args[1]
