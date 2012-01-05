@@ -33,5 +33,9 @@ def list_packages(moduleset, chroot=None):
         print "%(built)-1s %(name)-28s %(version)-15s %(category)-18s %(source)s" % items
 
 
-def main(chroot, moduleset, args):
-    list_packages(moduleset, chroot)
+def register_arguments(parser):
+    parser.description = 'List the packages'
+
+
+def main(args):
+    list_packages(args.moduleset, args.chroot)

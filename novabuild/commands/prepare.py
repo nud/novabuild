@@ -6,29 +6,18 @@ from novabuild.run import system
 from novabuild.colours import red, blue
 from novabuild import env
 
-def usage():
-    print 'sudo ' + sys.argv[0] + ' [--help] [--distro=distro]'
 
-def main(chroot, args):
-    try:
-        opts, args = getopt.getopt(args, 'hd:',
-                                   ['help', 'distro='])
-    except getopt.GetoptError, e:
-        # print help information and exit:
-        print str(e) # will print something like "option -a not recognized"
-        usage()
-        return 2
-    
+def register_arguments(parser):
+    parser.description = 'Prepare a chroot'
+    parser.add_argument('-d', '--distro', dest='distro', default='squeeze', help='distribution to install')
+
+
+def main(args):
     chroot_base = '/chroots'
     debian_mirror = 'http://ftp.debian.org/debian'
-    distro = 'lenny'
-    
-    for o, a in opts:
-        if o in ('-h', '--help'):
-            usage()
-            return 0
-        elif o in ('-d', '--distro'):
-            distro = a
+
+    chroot = args.chroot
+    distro = args.distro
 
     # Get the user name.
     # Remember we are supposed to be ran with sudo

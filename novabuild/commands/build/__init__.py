@@ -57,13 +57,21 @@ def build(chroot, moduleset, module, force=False, recursive=False):
     return True
 
 
-def main(chroot, moduleset, args):
+def register_arguments(parser):
+    parser.help = 'build a single package'
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='force building even if already built')
+    parser.add_argument('-r', '--recursive', action='store_true',
+                        help='build packages recursively')
+    parser.add_argument('packages', action='append', nargs='+', metavar='package',
+                        help='package to build')
+
+
+def main(args):
     try:
-        force = '-f' in args or '--force' in args
-        recursive = '-r' in args or '--recursive' in args
-        for arg in [x for x in args if not x.startswith('-')]:
-            module = moduleset[arg]
-            build(chroot, moduleset, module, force=force, recursive=recursive)
+        for package in args.packages:
+            build(args.chroot, args.moduleset, args.moduleset[package],
+                  force=args.force, recursive=args.recursive)
         return 0
 
     except Exception, e:

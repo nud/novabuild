@@ -1,5 +1,5 @@
 import prepare
-import pkglist
+import list
 import fetch
 import fetchall
 import build

@@ -4,11 +4,17 @@ from novabuild.commands.build import build
 from novabuild.colours import red, blue
 import sys
 
-def main(chroot, moduleset, args):
-    for module in moduleset:
+
+def register_arguments(parser):
+    parser.description = 'build all the packages'
+
+
+def main(args):
+    for mod_name in args.moduleset:
         try:
-            print blue("Building '%s'" % moduleset[module].name)
-            build(chroot, moduleset, moduleset[module], recursive=True)
+            module = args.moduleset[mod_name]
+            print blue("Building '%s'" % module.name)
+            build(args.chroot, args.moduleset, module, recursive=True)
         except Exception, e:
             print red("Exception %s: %s" % (e.__class__.__name__, e))
             return 1

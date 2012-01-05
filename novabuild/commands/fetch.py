@@ -64,8 +64,15 @@ def fetch(module):
     return True
 
 
-def main(moduleset, args):
-    module = moduleset[args[0]]
+def register_arguments(parser):
+    parser.description = 'Fetch a tarball'
+    parser.add_argument('package', help='the package whose source should be retrieved')
+
+
+def main(args):
+    print args
+
+    module = args.moduleset[args.package]
     try:
         fetch(module)
         return 0

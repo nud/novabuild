@@ -4,11 +4,15 @@ from novabuild.commands.fetch import fetch
 from novabuild.colours import red, blue
 import sys
 
-def main(moduleset, args):
-    for module in sorted(moduleset):
+def register_arguments(parser):
+    parser.description = 'Fetch all the tarballs'
+
+def main(args):
+    for mod_name in sorted(args.moduleset):
         try:
-            print blue("Fetching '%s' from '%s'" % (moduleset[module].name, moduleset[module]['Source']))
-            fetch(moduleset[module])
+            module = args.moduleset[mod_name]
+            print blue("Fetching '%s' from '%s'" % (module.name, module['Source']))
+            fetch(module)
         except Exception, e:
             print red(e)
             status = 1
