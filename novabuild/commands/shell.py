@@ -10,4 +10,4 @@ def register_arguments(parser):
 
 
 def main(args):
-    return chroot.system('', root=args.root)
+    return args.chroot.system('', root=args.root)
