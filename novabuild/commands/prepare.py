@@ -56,18 +56,6 @@ def main(chroot, args):
     print blue("Ensure the /root directory exists")
     code = system('mkdir -p %s' % chroot.abspath('/root', internal=False))
 
-    print blue("Create home directory for user '%s'" % user)
-    homedir = chroot.abspath('~/', internal=False)
-    code = system('mkdir -p %s' % homedir)
-    if code != 0:
-        print red("Could not create the home directory")
-        return 1
-
-    code = system('chown %s:%s %s' % (user, user, homedir))
-    if code != 0:
-        print red("Could not set the home directory ownership")
-        return 1
-
     ########################################################################
     
     print blue("Configuring APT")
