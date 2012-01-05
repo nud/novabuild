@@ -70,8 +70,6 @@ def register_arguments(parser):
 
 
 def main(args):
-    print args
-
     module = args.moduleset[args.package]
     try:
         fetch(module)
