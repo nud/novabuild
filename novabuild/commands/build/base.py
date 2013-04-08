@@ -35,7 +35,7 @@ class BuildMethod(object):
         if not os.path.exists(destination):
             contents = os.listdir(dest_parent)
             if len(contents) == 1:
-                check_code(system('mv %s/%s %s' % (dest_parent, contents[0], destination)), module)
+                check_code(system('mv "%s/%s" %s' % (dest_parent, contents[0], destination)), module)
             else:
                 check_code(system('mkdir %s' % destination), module)
                 files = [os.path.join(dest_parent, file) for file in contents]
