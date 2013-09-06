@@ -10,6 +10,7 @@ from novabuild.commands.fetch import fetch
 
 class BuildMethod(object):
     def __init__(self, args):
+        self.arch = args.arch
         self.chroot = args.chroot
         self.moduleset = args.moduleset
 

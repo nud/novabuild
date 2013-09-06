@@ -37,6 +37,8 @@ def get_argument_parser(config):
                         help="chroot installation to use")
     parser.add_argument('-m', '--moduleset', dest='moduleset', type=create_moduleset,
                         help="moduleset to use")
+    parser.add_argument('-a', '--arch', dest='arch', type=str, default=None,
+                        help="architecture")
 
     if config.has_section('environment'):
         parser.set_defaults(**dict(config.items('environment')))
@@ -64,6 +66,10 @@ def main(args):
 
     parser = get_argument_parser(config)
     args = parser.parse_args(args[1:])
+
+    # The default architecture will always be the current one.
+    if args.arch is None:
+        args.arch = os.popen('dpkg --print-architecture').readline().strip()
 
     try:
         status = args.func(args)

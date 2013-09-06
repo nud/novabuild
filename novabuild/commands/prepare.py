@@ -18,6 +18,7 @@ def main(args):
 
     chroot = args.chroot
     distro = args.distro
+    arch = args.arch
 
     # Get the user name.
     # Remember we are supposed to be ran with sudo
@@ -35,7 +36,7 @@ def main(args):
     if not os.path.exists(chroot_path):
         print blue("Setup the chroot in '%s'" % chroot_path)
 
-        code = system('debootstrap --variant=buildd %s %s %s' % (distro, chroot_path, debian_mirror))
+        code = system('debootstrap --variant=buildd --arch=%s %s %s %s' % (arch, distro, chroot_path, debian_mirror))
         if code != 0:
              print red("Cound not bootstrap the chroot.")
              return 1

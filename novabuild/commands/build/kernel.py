@@ -8,14 +8,14 @@ from novabuild.misc import check_code
 
 
 class BuildMethod(base.BuildMethod):
-    REV_TAG="beip.i386.3.0"
+    REV_TAG="beip.3.0"
 
     # Set up the dpkg environment for the build.
     def setup_build_env(self, module, build_dir):
         self.uncompress_tarball(module, build_dir)
 
         print blue("Configuring the kernel")
-        code = system('cp debian/config-%s-i386 %s/.config' % (module['Version'], build_dir))
+        code = system('cp debian/config-%s-%s %s/.config' % (module['Version'], self.arch, build_dir))
         check_code(code, module)
 
 
@@ -31,6 +31,6 @@ class BuildMethod(base.BuildMethod):
 
     def list_module_packages(self, module):
         version = module['Version']
-        return ["linux-headers-%s_%s_i386.deb" % (version, self.REV_TAG),
-                "linux-image-%s_%s_i386.deb" % (version, self.REV_TAG),
+        return ["linux-headers-%s_%s_%s.deb" % (version, self.REV_TAG, self.arch),
+                "linux-image-%s_%s_%s.deb" % (version, self.REV_TAG, self.arch),
                 "linux-source-%s_%s_all.deb" % (version, self.REV_TAG)]
