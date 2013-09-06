@@ -63,7 +63,7 @@ def register_arguments(parser):
                         help='force building even if already built')
     parser.add_argument('-r', '--recursive', action='store_true',
                         help='build packages recursively')
-    parser.add_argument('packages', action='append', nargs='+', metavar='package',
+    parser.add_argument('packages', type=str, nargs='+', metavar='package',
                         help='package to build')
 
 
