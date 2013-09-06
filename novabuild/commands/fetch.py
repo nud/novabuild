@@ -15,7 +15,7 @@ def fetch(module):
     source_type = module['Source-Type']
 
     if source_type == 'wget':
-        code = system('wget -Nc %s -Otarballs/%s' % (module['Source'], module['Basename']))
+        code = system('wget -nc %s -Otarballs/%s' % (module['Source'], module['Basename']))
         check_code(code, module)
 
     elif source_type == 'git':
