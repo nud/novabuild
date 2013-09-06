@@ -5,6 +5,7 @@ import commands
 from chroot import Chroot
 from modules import ModuleSet
 
+import ConfigParser
 import os
 import argparse
 import traceback
@@ -26,17 +27,19 @@ def ensure_data_dir():
 
 
 def create_moduleset(name):
-    ensure_data_dir()
     return ModuleSet(os.path.join('modulesets', name))
 
 
-def get_argument_parser():
+def get_argument_parser(config):
     parser = argparse.ArgumentParser(prog="novabuild", description="Build Debian packages",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-c', '--chroot', dest='chroot', required=True, type=Chroot,
+    parser.add_argument('-c', '--chroot', dest='chroot', type=Chroot,
                         help="chroot installation to use")
-    parser.add_argument('-m', '--moduleset', dest='moduleset', required=True, type=create_moduleset,
+    parser.add_argument('-m', '--moduleset', dest='moduleset', type=create_moduleset,
                         help="moduleset to use")
+
+    if config.has_section('environment'):
+        parser.set_defaults(**dict(config.items('environment')))
 
     subparsers = parser.add_subparsers(help='sub-command')
 
@@ -45,13 +48,21 @@ def get_argument_parser():
             cmdmod = getattr(commands, cmd)
             subparser = subparsers.add_parser(cmd)
             cmdmod.register_arguments(subparser)
+            if config.has_section(cmd):
+                subparser.set_defaults(**dict(config.items(cmd)))
             subparser.set_defaults(func=cmdmod.main)
 
     return parser
 
 
 def main(args):
-    parser = get_argument_parser()
+    ensure_data_dir()
+
+    config = ConfigParser.SafeConfigParser()
+    if os.path.exists('novabuild.cfg'):
+        config.read('novabuild.cfg')
+
+    parser = get_argument_parser(config)
     args = parser.parse_args(args[1:])
 
     try:
