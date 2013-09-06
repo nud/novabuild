@@ -45,7 +45,7 @@ class BuildMethod(base.BuildMethod):
 
 
     def get_version(self, module):
-        version = "%s-beip-%s%s" % (module['Version'], self.chroot.name[0:3], module['Build-Number'])
+        version = "%s-%s" % (module['Version'], self.revision_pattern % module['Build-Number'])
         if 'Packaging-Version' in module:
             version = "%s:%s" % (module['Packaging-Version'], version)
         return version

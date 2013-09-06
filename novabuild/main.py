@@ -60,7 +60,7 @@ def get_argument_parser(config):
 def main(args):
     ensure_data_dir()
 
-    config = ConfigParser.SafeConfigParser()
+    config = ConfigParser.RawConfigParser()
     if os.path.exists('novabuild.cfg'):
         config.read('novabuild.cfg')
 

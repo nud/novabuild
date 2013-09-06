@@ -57,7 +57,7 @@ def build(module, args):
     return True
 
 
-def register_build_arguments(parser, force=True, recursive=True):
+def register_build_arguments(parser, force=True, recursive=True, revision_pattern=True):
     if force:
         parser.add_argument('-f', '--force', action='store_true',
                             help='force building even if already built')
@@ -65,7 +65,11 @@ def register_build_arguments(parser, force=True, recursive=True):
         parser.add_argument('-r', '--recursive', action='store_true',
                             help='build packages recursively')
 
-    parser.set_defaults(force=False, recursive=False)
+    if revision_pattern:
+        parser.add_argument('--revision-pattern', type=str,
+                            help='pattern for building the build revision')
+
+    parser.set_defaults(force=False, recursive=False, revision_pattern='%s')
 
 
 def register_arguments(parser):

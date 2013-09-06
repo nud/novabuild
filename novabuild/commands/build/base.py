@@ -13,6 +13,7 @@ class BuildMethod(object):
         self.arch = args.arch
         self.chroot = args.chroot
         self.moduleset = args.moduleset
+        self.revision_pattern = args.revision_pattern
 
     # Uncompress the module tarball
     def uncompress_tarball(self, module, destination):
