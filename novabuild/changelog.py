@@ -2,6 +2,7 @@
 
 import re
 import os
+import subprocess
 import sys
 import tempfile
 import time
@@ -13,54 +14,33 @@ DEFAULT_AUTHOR = "Novabuild"
 DEFAULT_EMAIL = "support@beip.be"
 
 
-# Simple class for comparing debian versions.
-class Version(object):
-    PATTERN = re.compile('^(?:([0-9]+):)?([0-9a-z_~.-]+)(?:-beip.([0-9]+))?$')
-
-    def __init__(self, string):
-        matches = self.PATTERN.match(string)
-        if not matches:
-            raise Exception("Invalid version number: %s" % string)
-        self.packaging = int(matches.group(1) or 0)
-        self.numbers = [int(i) for i in re.split('[^0-9]+', matches.group(2)) if i]
-        self.buildnumber = int(matches.group(3) or 0)
-
-    def __cmp__(self, other):
-        return cmp(self.packaging, other.packaging) or \
-               cmp(self.numbers, other.numbers) or \
-               cmp(self.buildnumber, other.buildnumber)
-
-    def __str__(self):
-        s = '.'.join(str(i) for i in self.numbers)
-        if self.packaging:
-            s = "%d:%s" % (self.packaging, s)
-        if self.buildnumber:
-            s = "%s-beip.%d" % (s, self.buildnumber)
-        return s
-
-
 # Example of changelog line:
-#   asterisk (1:1.2.24-beip.1) stable; urgency=low
+#   asterisk (1:1.2.24-12+b1) stable; urgency=low
 # Pattern used in parsechangelog/debian:
 #   m/^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)((\s+[-+0-9a-z.]+)+)\;/i
 def parse_changelog_header(line):
     matches = re.match('^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)', line, re.I)
-    return matches.group(1), Version(matches.group(2))
+    return matches.group(1), matches.group(2)
+
+
+def compare_versions(v1, op, v2):
+    return subprocess.call(['dpkg', '--compare-versions', v1, op, v2]) == 0
 
 
 # Do we need to update the changelog?
 def changelog_is_up_to_date(filename, version):
-    if not isinstance(version, Version):
-        version = Version(version)
     line = file(filename, 'r').readline()
     lp, lv = parse_changelog_header(line)
 
+    # The changelog is up to date iff the old version is the same as the new one.
+    if compare_versions(version, 'eq', lv):
+        return True
+
     # We don't want to allow diminishing the current version number.
-    if version < lv:
+    if compare_versions(version, 'lt', lv):
         raise Exception('The new version number (%s) is lower than the old one (%s)!' % (version, lv))
 
-    # The changelog is up to date iff the old version is the same as the new one.
-    return version == lv
+    return False
 
 
 def read_last_changelog_entry(filename):
