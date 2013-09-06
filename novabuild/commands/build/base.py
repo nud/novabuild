@@ -9,9 +9,9 @@ from novabuild.misc import check_code
 from novabuild.commands.fetch import fetch
 
 class BuildMethod(object):
-    def __init__(self, chroot, moduleset):
-        self.chroot = chroot
-        self.moduleset = moduleset
+    def __init__(self, args):
+        self.chroot = args.chroot
+        self.moduleset = args.moduleset
 
     # Uncompress the module tarball
     def uncompress_tarball(self, module, destination):

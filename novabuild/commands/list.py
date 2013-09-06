@@ -30,7 +30,7 @@ def main(args):
             'built': ' ',
         }
         if args.chroot is not None:
-            method = get_build_method(module, args.chroot, args.moduleset, quiet=True)
+            method = get_build_method(module, args, quiet=True)
             if method.module_is_built(module):
                 items['built'] = '#'
 
