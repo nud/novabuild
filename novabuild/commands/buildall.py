@@ -8,13 +8,18 @@ import sys
 def register_arguments(parser):
     parser.description = 'build all the packages'
 
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='force building even if already built')
+
 
 def main(args):
+    args.recursive = True
+
     for mod_name in args.moduleset:
         try:
             module = args.moduleset[mod_name]
             print blue("Building '%s'" % module.name)
-            build(args.chroot, args.moduleset, module, recursive=True)
+            build(module, args)
         except Exception, e:
             print red("Exception %s: %s" % (e.__class__.__name__, e))
             return 1

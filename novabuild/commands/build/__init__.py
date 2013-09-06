@@ -16,23 +16,23 @@ def get_build_method(module, chroot, moduleset, quiet=False):
     return pymodule.BuildMethod(chroot, moduleset)
 
 
-def build(chroot, moduleset, module, force=False, recursive=False):
-    method = get_build_method(module, chroot, moduleset)
-    if not force and method.module_is_built(module):
+def build(module, args):
+    method = get_build_method(module, args.chroot, args.moduleset)
+    if not args.force and method.module_is_built(module):
         print blue("Module '%s' has already been built" % module.name)
         return False
 
-    if recursive:
+    if args.recursive:
         dependencies = [x for x in [i.strip() for i in module['Depends'].split(',')] if x]
         if dependencies:
             print blue("Building dependencies for '%s'" % module.name)
             for i in dependencies:
-                build(chroot, moduleset, moduleset[i], force, recursive)
+                build(args.moduleset[i], args)
 
-    BUILD_DIR = os.path.join(chroot.get_home_dir(), 'tmp-build-dir',
+    BUILD_DIR = os.path.join(args.chroot.get_home_dir(), 'tmp-build-dir',
                              '%s-%s' % (module.name, module['Version']))
 
-    code = chroot.system('rm -rf /home/%s/tmp-build-dir' % chroot.user, root=True)
+    code = args.chroot.system('rm -rf /home/%s/tmp-build-dir' % args.chroot.user, root=True)
     check_code(code, module)
 
     code = system('mkdir -p %s' % os.path.dirname(BUILD_DIR))
@@ -44,13 +44,13 @@ def build(chroot, moduleset, module, force=False, recursive=False):
         packages_to_install = [i.strip() for i in module['Install'].split(',')]
         if packages_to_install != []:
             print blue("Installing packages '%s'" % "', '".join(packages_to_install))
-            packages = [os.path.basename(i) for i in glob.glob(chroot.abspath('~/tmp-build-dir/*.deb', internal=False))]
-            packages = [chroot.abspath('~/tmp-build-dir/%s' % package) for package in packages
+            packages = [os.path.basename(i) for i in glob.glob(args.chroot.abspath('~/tmp-build-dir/*.deb', internal=False))]
+            packages = [args.chroot.abspath('~/tmp-build-dir/%s' % package) for package in packages
                                                      if package.split('_', 1)[0] in packages_to_install]
-            code = chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
+            code = args.chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
             check_code(code, module)
 
-    repo_dir = 'repository-%s' % chroot.name
+    repo_dir = 'repository-%s' % args.chroot.name
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
     code = system('mv -f %s/*.deb %s/' % (os.path.dirname(BUILD_DIR), repo_dir))
@@ -70,8 +70,7 @@ def register_arguments(parser):
 def main(args):
     try:
         for package in args.packages:
-            build(args.chroot, args.moduleset, args.moduleset[package],
-                  force=args.force, recursive=args.recursive)
+            build(args.moduleset[package], args)
         return 0
 
     except Exception, e:
