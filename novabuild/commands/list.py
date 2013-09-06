@@ -12,11 +12,16 @@ def cmp_by(*fields):
         return 0
     return cmpfunc
 
-def list_packages(moduleset, chroot=None):
+
+def register_arguments(parser):
+    parser.description = 'List the packages'
+
+
+def main(args):
     print "B Package Name                 Version         Category           Source URI"
     print "- -------------                --------        ---------          -----------"
 
-    for module in sorted(moduleset._sections.values(), cmp_by('Category', 'Module')):
+    for module in sorted(args.moduleset._sections.values(), cmp_by('Category', 'Module')):
         items = {
             'category': module['Category'],
             'name': module.name,
@@ -24,18 +29,10 @@ def list_packages(moduleset, chroot=None):
             'source': module['Source'],
             'built': ' ',
         }
-        if chroot is not None:
-            method = get_build_method(module, chroot, moduleset, quiet=True)
+        if args.chroot is not None:
+            method = get_build_method(module, args.chroot, args.moduleset, quiet=True)
             if method.module_is_built(module):
                 items['built'] = '#'
 
 
         print "%(built)-1s %(name)-28s %(version)-15s %(category)-18s %(source)s" % items
-
-
-def register_arguments(parser):
-    parser.description = 'List the packages'
-
-
-def main(args):
-    list_packages(args.moduleset, args.chroot)
