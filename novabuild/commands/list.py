@@ -31,8 +31,11 @@ def main(args):
         }
         if args.chroot is not None:
             method = get_build_method(module, args, quiet=True)
-            if method.module_is_built(module):
-                items['built'] = '#'
+            try:
+                if method.module_is_built(module):
+                    items['built'] = '#'
+            except:
+                pass
 
 
         print "%(built)-1s %(name)-28s %(version)-15s %(category)-18s %(source)s" % items
