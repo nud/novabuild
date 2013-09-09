@@ -8,6 +8,7 @@ from modules import ModuleSet
 
 import argparse
 import ConfigParser
+import jinja2
 import os
 import re
 import traceback
@@ -28,6 +29,13 @@ def ensure_data_dir():
             raise NovabuildError('Not a novabuild repository (or any of the parent directories)')
 
 
+def get_config_vars(config):
+    v = {'distro': env.get_distro_codename()}
+    if config.has_section('vars'):
+        v.update(config.items('vars'))
+    return v
+
+
 def read_configuration(filenames):
     config = ConfigParser.RawConfigParser()
 
@@ -36,9 +44,7 @@ def read_configuration(filenames):
         if os.path.exists(filename):
             config.read(filename)
 
-    expr_vars = {'distro': env.get_distro_codename()}
-    if config.has_section('vars'):
-        expr_vars.update(dict(config.items('vars')))
+    expr_vars = get_config_vars(config)
 
     for section in config.sections():
         items = config.items(section)
@@ -59,9 +65,23 @@ def read_configuration(filenames):
     return config
 
 
-def create_moduleset(name):
-    moduleset = ModuleSet()
-    moduleset.readfp(os.path.join('modulesets', name))
+
+class ModuleSetFactory(object):
+    def __init__(self, config):
+        self._vars = get_config_vars(config)
+
+    def __call__(self, name):
+        class RelEnvironment(jinja2.Environment):
+            """Override join_path() to enable relative template paths."""
+            def join_path(self, template, parent):
+                return os.path.join(os.path.dirname(parent), template)
+
+        env = RelEnvironment(loader=jinja2.FileSystemLoader('modulesets'))
+        template = env.get_template(name)
+
+        moduleset = ModuleSet()
+        moduleset.readfp(template.render(**self._vars).splitlines())
+        return moduleset
 
 
 def get_argument_parser(config):
@@ -69,7 +89,7 @@ def get_argument_parser(config):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c', '--chroot', dest='chroot', type=Chroot,
                         help="chroot installation to use")
-    parser.add_argument('-m', '--moduleset', dest='moduleset', type=create_moduleset,
+    parser.add_argument('-m', '--moduleset', dest='moduleset', type=ModuleSetFactory(config),
                         help="moduleset to use")
     parser.add_argument('-a', '--arch', dest='arch', type=str, default=None,
                         help="architecture")
