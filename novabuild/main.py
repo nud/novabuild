@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*- ex:set sw=4 ts=4 et:
 
 import commands
+import env
 from chroot import Chroot
 from modules import ModuleSet
 
+import argparse
 import ConfigParser
 import os
-import argparse
+import re
 import traceback
 
 
@@ -24,6 +26,37 @@ def ensure_data_dir():
         cwd = os.path.dirname(cwd)
         if cwd == '/':
             raise NovabuildError('Not a novabuild repository (or any of the parent directories)')
+
+
+def read_configuration(filenames):
+    config = ConfigParser.RawConfigParser()
+
+    for filename in filenames:
+        filename = os.path.expanduser(filename)
+        if os.path.exists(filename):
+            config.read(filename)
+
+    expr_vars = {'distro': env.get_distro_codename()}
+    if config.has_section('vars'):
+        expr_vars.update(dict(config.items('vars')))
+
+    for section in config.sections():
+        items = config.items(section)
+
+        m = re.match('^([a-z_-]+) if (.*)$', section)
+        if m:
+            if not eval(m.group(2), {'__builtins__': None}, expr_vars):
+                continue
+            config.remove_section(section)
+            section = m.group(1)
+        else:
+            items = config.items(section)
+
+        for name, value in items:
+            new_value = re.sub('{([a-z_]+)}', lambda m: expr_vars[m.group(1)], value)
+            config.set(section, name, new_value)
+
+    return config
 
 
 def create_moduleset(name):
@@ -60,9 +93,7 @@ def get_argument_parser(config):
 def main(args):
     ensure_data_dir()
 
-    config = ConfigParser.RawConfigParser()
-    if os.path.exists('novabuild.cfg'):
-        config.read('novabuild.cfg')
+    config = read_configuration(['~/.novabuildrc', 'novabuild.cfg'])
 
     parser = get_argument_parser(config)
     args = parser.parse_args(args[1:])
