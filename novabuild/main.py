@@ -60,7 +60,8 @@ def read_configuration(filenames):
 
 
 def create_moduleset(name):
-    return ModuleSet(os.path.join('modulesets', name))
+    moduleset = ModuleSet()
+    moduleset.readfp(os.path.join('modulesets', name))
 
 
 def get_argument_parser(config):

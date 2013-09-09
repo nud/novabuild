@@ -62,10 +62,9 @@ class Module(ControlSection):
 class ModuleSet(BasicControlParser):
     section_class = Module
 
-    def __init__(self, moduleset):
+    def __init__(self):
         BasicControlParser.__init__(self)
         self._sections = {}
-        self.read(moduleset)
 
     def __contains__(self, item):
         return item in self._sections
