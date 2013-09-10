@@ -14,8 +14,8 @@ class BuildMethod(classic.BuildMethod):
     wrapper_script = '~/tmp-build-dir/build-wrapper.sh'
 
     def get_wrapper_script(self):
-        if 'linux' in self.moduleset:
-            kvers = self.moduleset['linux']['Version']
+        if 'linux' in self.args.moduleset:
+            kvers = self.args.moduleset['linux']['Version']
         else:
             # FIXME: How god, this is ugly!
             kvers = '$(/bin/ls /usr/src/ | grep -E "linux-headers-2\.6.*686-bigmem" | grep -o "2\.6.*686-bigmem")'
@@ -27,7 +27,7 @@ class BuildMethod(classic.BuildMethod):
                         "exec dpkg-buildpackage -rfakeroot -b -uc\n"])
 
     def save_wrapper_script(self):
-        path = self.chroot.abspath(self.wrapper_script, internal=False)
+        path = self.args.chroot.abspath(self.wrapper_script, internal=False)
         file(path, 'w').write(self.get_wrapper_script())
 
     def setup_build_env(self, *args):
@@ -35,7 +35,7 @@ class BuildMethod(classic.BuildMethod):
         self.save_wrapper_script()
 
     def build(self, module):
-        cmd = 'sh ' + self.chroot.abspath(self.wrapper_script)
-        cwd = self.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
-        code = self.chroot.system(cmd, cwd=cwd)
+        cmd = 'sh ' + self.args.chroot.abspath(self.wrapper_script)
+        cwd = self.args.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
+        code = self.args.chroot.system(cmd, cwd=cwd)
         check_code(code, module)

@@ -10,10 +10,7 @@ from novabuild.commands.fetch import fetch
 
 class BuildMethod(object):
     def __init__(self, args):
-        self.arch = args.arch
-        self.chroot = args.chroot
-        self.moduleset = args.moduleset
-        self.revision_pattern = args.revision_pattern
+        self.args = args
 
     # Uncompress the module tarball
     def uncompress_tarball(self, module, destination):
@@ -51,6 +48,6 @@ class BuildMethod(object):
 
     def module_is_built(self, module):
         for package in self.list_module_packages(module):
-            if not os.path.exists(os.path.join('repository-' + self.chroot.name, package)):
+            if not os.path.exists(os.path.join('repository-' + self.args.chroot.name, package)):
                 return False
         return True

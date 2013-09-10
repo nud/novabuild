@@ -40,12 +40,12 @@ class BuildMethod(base.BuildMethod):
     def install_dependencies(self, module, build_dir):
         deps = self.get_dependencies(build_dir)
         if deps:
-            code = self.chroot.system('apt-get install %s' % ' '.join(deps), root=True)
+            code = self.args.chroot.system('apt-get install %s' % ' '.join(deps), root=True)
             check_code(code, module)
 
 
     def get_version(self, module):
-        version = "%s-%s" % (module['Version'], self.revision_pattern % module['Build-Number'])
+        version = "%s-%s" % (module['Version'], self.args.revision_pattern % module['Build-Number'])
         if 'Packaging-Version' in module:
             version = "%s:%s" % (module['Packaging-Version'], version)
         return version
@@ -71,8 +71,8 @@ class BuildMethod(base.BuildMethod):
 
     # Build the module
     def build(self, module):
-        cwd = self.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
-        code = self.chroot.system('dpkg-buildpackage -rfakeroot -b -uc', cwd=cwd)
+        cwd = self.args.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
+        code = self.args.chroot.system('dpkg-buildpackage -rfakeroot -b -uc', cwd=cwd)
         check_code(code, module)
 
 
@@ -112,7 +112,7 @@ class BuildMethod(base.BuildMethod):
             name = package['Package']
             arch = package['Architecture']
             if arch == 'any':
-                arch = self.arch
+                arch = self.args.arch
 
             packages.append('%s_%s_%s.deb' % (name, version, arch))
 
