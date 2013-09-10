@@ -55,6 +55,9 @@ def read_configuration(filenames):
                 continue
             config.remove_section(section)
             section = m.group(1)
+
+            if not config.has_section(section):
+                config.add_section(section)
         else:
             items = config.items(section)
 
