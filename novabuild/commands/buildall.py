@@ -5,10 +5,10 @@ from novabuild.colours import red, blue
 import sys
 
 
-def register_arguments(parser):
+def register_arguments(parser, config):
     parser.description = 'build all the packages'
 
-    register_build_arguments(parser, recursive=False)
+    register_build_arguments(parser, config, recursive=False)
 
 
 def main(args):

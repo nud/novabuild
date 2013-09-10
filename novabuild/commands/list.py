@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
-from build import get_build_method
+from build import get_build_method, register_build_arguments
 
 # Function to be used with sort or sorted
 # It compares two dict by looking at the specified fields in order.
@@ -13,8 +13,9 @@ def cmp_by(*fields):
     return cmpfunc
 
 
-def register_arguments(parser):
+def register_arguments(parser, config):
     parser.description = 'List the packages'
+    register_build_arguments(parser, config, force=False, recursive=False)
 
 
 def main(args):

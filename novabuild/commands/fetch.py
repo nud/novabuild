@@ -64,7 +64,7 @@ def fetch(module):
     return True
 
 
-def register_arguments(parser):
+def register_arguments(parser, config):
     parser.description = 'Fetch a tarball'
     parser.add_argument('package', help='the package whose source should be retrieved')
 

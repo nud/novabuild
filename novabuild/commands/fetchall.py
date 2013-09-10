@@ -4,7 +4,7 @@ from novabuild.commands.fetch import fetch
 from novabuild.colours import red, blue
 import sys
 
-def register_arguments(parser):
+def register_arguments(parser, config):
     parser.description = 'Fetch all the tarballs'
 
 def main(args):

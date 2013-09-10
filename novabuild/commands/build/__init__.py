@@ -57,7 +57,7 @@ def build(module, args):
     return True
 
 
-def register_build_arguments(parser, force=True, recursive=True, revision_pattern=True):
+def register_build_arguments(parser, config, force=True, recursive=True, revision_pattern=True):
     if force:
         parser.add_argument('-f', '--force', action='store_true',
                             help='force building even if already built')
@@ -71,10 +71,13 @@ def register_build_arguments(parser, force=True, recursive=True, revision_patter
 
     parser.set_defaults(force=False, recursive=False, revision_pattern='%s')
 
+    if config.has_section('build'):
+        parser.set_defaults(**dict(config.items('build')))
 
-def register_arguments(parser):
+
+def register_arguments(parser, config):
     parser.help = 'build a single package'
-    register_build_arguments(parser)
+    register_build_arguments(parser, config)
     parser.add_argument('packages', type=str, nargs='+', metavar='package',
                         help='package to build')
 

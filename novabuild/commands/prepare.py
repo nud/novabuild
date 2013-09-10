@@ -7,9 +7,12 @@ from novabuild.colours import red, blue
 from novabuild import env
 
 
-def register_arguments(parser):
+def register_arguments(parser, config):
     parser.description = 'Prepare a chroot'
     parser.add_argument('-d', '--distro', dest='distro', default='squeeze', help='distribution to install')
+
+    if config.has_section('prepare'):
+        parser.set_defaults(**dict(config.items('prepare')))
 
 
 def main(args):

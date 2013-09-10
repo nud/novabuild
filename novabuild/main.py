@@ -106,9 +106,7 @@ def get_argument_parser(config):
         if not cmd.startswith('_'):
             cmdmod = getattr(commands, cmd)
             subparser = subparsers.add_parser(cmd)
-            cmdmod.register_arguments(subparser)
-            if config.has_section(cmd):
-                subparser.set_defaults(**dict(config.items(cmd)))
+            cmdmod.register_arguments(subparser, config)
             subparser.set_defaults(func=cmdmod.main)
 
     return parser
