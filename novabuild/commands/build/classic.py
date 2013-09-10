@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
+import jinja2
 import os
+import shutil
 
 import base
 from novabuild.debcontrol import PackageControlParser
@@ -8,11 +10,28 @@ from novabuild.changelog import *
 from novabuild.run import system
 from novabuild.colours import blue
 from novabuild.misc import check_code
+from novabuild.fileops import copytree_j2
+
+
+def _read_template(filename):
+    contents = open(filename).read().decode('utf-8')
+    mtime = os.path.getmtime(filename)
+
+    def uptodate():
+        try:
+            return os.path.getmtime(filename) == mtime
+        except OSError:
+            return False
+
+    return contents, filename, uptodate
 
 
 class BuildMethod(base.BuildMethod):
     def get_debian_dir(self, module):
         return os.path.join('debian', 'debian-%s' % module.name)
+
+    def get_jinja_env(self):
+        return jinja2.Environment(loader=jinja2.FunctionLoader(_read_template))
 
     # Set up the dpkg environment for the build.
     def setup_build_env(self, debian_dir, build_dir, module):
@@ -21,11 +40,9 @@ class BuildMethod(base.BuildMethod):
         # Remove the debian dir that would be distributed with the upstream tarball.
         target_debian_dir = os.path.join(build_dir, 'debian')
         if (os.path.exists(target_debian_dir)):
-            code = system('rm -rf %s' % target_debian_dir)
-            check_code(code, module)
+            shutil.rmtree(target_debian_dir)
 
-        code = system('cp -r %s %s' % (debian_dir, target_debian_dir))
-        check_code(code, module)
+        copytree_j2(debian_dir, target_debian_dir, self.get_jinja_env(), self.args.vars)
 
 
     # Get the dependencies of the current package
@@ -94,7 +111,13 @@ class BuildMethod(base.BuildMethod):
         debiandir = self.get_debian_dir(module)
 
         control = PackageControlParser()
-        control.read(os.path.join(debiandir, 'control'))
+
+        if os.path.exists(os.path.join(debiandir, 'control')):
+            control.read(os.path.join(debiandir, 'control'))
+        else:
+            env = self.get_jinja_env()
+            data = env.get_template(os.path.join(debiandir, 'control.j2')).render(**self.args.vars)
+            control.readfp(data.splitlines())
 
         version = self.get_version(module)
 

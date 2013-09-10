@@ -65,7 +65,7 @@ def read_configuration(filenames):
             new_value = re.sub('{([a-z_]+)}', lambda m: expr_vars[m.group(1)], value)
             config.set(section, name, new_value)
 
-    return config
+    return config, expr_vars
 
 
 
@@ -115,10 +115,11 @@ def get_argument_parser(config):
 def main(args):
     ensure_data_dir()
 
-    config = read_configuration(['~/.novabuildrc', 'novabuild.cfg'])
+    config, env_vars = read_configuration(['~/.novabuildrc', 'novabuild.cfg'])
 
     parser = get_argument_parser(config)
     args = parser.parse_args(args[1:])
+    args.vars = env_vars
 
     # The default architecture will always be the current one.
     if args.arch is None:
