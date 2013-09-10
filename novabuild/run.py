@@ -2,6 +2,8 @@
 
 import os
 import sys
+from exceptions import Exception
+
 from colours import brown
 
 def system(cmd):
@@ -24,3 +26,7 @@ def run(cmd, input = None):
     if p.returncode != 0:
         raise Exception('Command "%s" exited with non-zero status (%d)' % (cmd, p.returncode))
     return lines
+
+def check_code(code, module):
+    if code != 0:
+        raise Exception("Could not handle module %s" % module.name)

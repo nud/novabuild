@@ -3,9 +3,8 @@
 import os.path
 
 import classic
-from novabuild.run import system
+from novabuild.run import system, check_code
 from novabuild.colours import blue
-from novabuild.misc import check_code
 
 IONCUBE_DIR = "/opt/ioncube"
 IONCUBE4 = os.path.join(IONCUBE_DIR, "ioncube_encoder")

@@ -7,9 +7,8 @@ import shutil
 import base
 from novabuild.debcontrol import PackageControlParser
 from novabuild.changelog import *
-from novabuild.run import system
+from novabuild.run import system, check_code
 from novabuild.colours import blue
-from novabuild.misc import check_code
 from novabuild.fileops import copytree_j2
 
 

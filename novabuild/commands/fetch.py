@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
 import os, sys
-from novabuild.run import system
+from novabuild.run import system, check_code
 from novabuild.colours import red, blue
-from novabuild.misc import check_code
 from exceptions import Exception
 
 
