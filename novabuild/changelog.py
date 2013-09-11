@@ -45,11 +45,11 @@ def changelog_is_up_to_date(filename, version):
 
 def read_last_changelog_entry(filename):
     f = file(filename, 'r')
-    lines = [f.readline()]
-    line = f.readline()
+    lines = [f.readline().decode('utf-8')]
+    line = f.readline().decode('utf-8')
     while line.isspace() or line.startswith(' '):
         lines.append(line)
-        line = f.readline()
+        line = f.readline().decode('utf-8')
 
     return lines
 
@@ -58,7 +58,7 @@ def read_last_changelog_entry(filename):
 def run_editor(text):
     # Write a temporary file
     fd, filename = tempfile.mkstemp(prefix="test-vim-", suffix=".txt")
-    os.fdopen(fd, "w").write(text)
+    os.fdopen(fd, "w").write(text.encode('utf-8'))
 
     # Edit the file using the editor
     os.system("%s \"%s\"" % (os.getenv('EDITOR', 'vi'), filename))
@@ -76,7 +76,7 @@ def run_editor(text):
     return ''.join(lines)
 
 
-CHANGELOG_TEMPLATE = """#
+CHANGELOG_TEMPLATE = u"""#
 # Changelog entry for:
 #
 #         %(package)s - %(version)s
@@ -104,8 +104,8 @@ def prepend_changelog_entry(new_filename, old_filename, package, version):
 
     text = CHANGELOG_TEMPLATE % { 'package': package,
                                   'version': version,
-                                  'author': os.getenv('NOVABUILD_AUTHOR', DEFAULT_AUTHOR),
-                                  'email': os.getenv('NOVABUILD_EMAIL', DEFAULT_EMAIL),
+                                  'author': os.getenv('NOVABUILD_AUTHOR', DEFAULT_AUTHOR).decode('utf-8'),
+                                  'email': os.getenv('NOVABUILD_EMAIL', DEFAULT_EMAIL).decode('utf-8'),
                                   'date': formatdate(localtime=True),
                                   'last_entry': last_entry }
     text = run_editor(text)
