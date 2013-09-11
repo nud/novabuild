@@ -17,12 +17,15 @@ repos = ['/home/%s/build/repository-%s' % (user, dist) for user in users]
 
 import os
 import datetime
-import re
+import subprocess
 
 def red(s): return "\033[31m" + str(s) + "\033[0m"
 def green(s): return "\033[32m" + str(s) + "\033[0m"
 def blue(s): return "\033[34m" + str(s) + "\033[0m"
 def brown(s): return "\033[33m" + str(s) + "\033[0m"
+
+def compare_versions(v1, op, v2):
+    return subprocess.call(['dpkg', '--compare-versions', v1, op, v2]) == 0
 
 try:
     blacklist = [line.strip() for line in file(os.path.join(base, 'conf/blacklist-'+dist)).readlines()]
@@ -40,15 +43,11 @@ for repo in repos:
         if name in blacklist:
             continue;
 
-        version = [x.isdigit() and int(x) or x for x in re.split('[.-]', version)]
-
         full_filename = os.path.join(repo, filename)
         spec = (version, os.path.getmtime(full_filename), full_filename)
 
-        if not name in packages:
+        if not name in packages or compare_versions(version, 'gt', packages[name][0]):
             packages[name] = spec
-        else:
-            packages[name] = max(packages[name], spec)
 
 for name in sorted(packages):
     builder = packages[name][2].split('/')[2]
