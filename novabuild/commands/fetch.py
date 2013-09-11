@@ -22,7 +22,7 @@ def fetch(module):
         branch = module.get('Branch', 'master')
 
         print blue("Cloning the last revision of the remote repository")
-        code = system('git clone --depth=1 -- %s tarballs/%s' % (module['Source'], fullname))
+        code = system('git clone --depth=1 --branch=%s -- %s tarballs/%s' % (branch, module['Source'], fullname))
         check_code(code, module)
 
         print blue("Generating tarball")
