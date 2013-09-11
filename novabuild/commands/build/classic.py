@@ -69,20 +69,17 @@ class BuildMethod(base.BuildMethod):
 
     # Write a new changelog entry...
     def update_changelog(self, module, build_dir, debian_dir):
-        filename = os.path.join(build_dir, 'debian', 'changelog')
+        filename = os.path.join(debian_dir, 'changelog')
+        build_filename = os.path.join(build_dir, 'debian', 'changelog')
         version = self.get_version(module)
 
         if not changelog_is_up_to_date(filename, version):
-            old_filename = os.path.join(debian_dir, 'changelog')
-
             print blue("Update ChangeLog for version %s" % version)
-            prepend_changelog_entry(filename, old_filename, module.name, version)
-
-            # backup the new changelog file
-            code = system('cp -f %s %s' % (filename, old_filename))
-            check_code(code, module)
+            prepend_changelog_entry(filename, module.name, version)
         else:
             print blue("No ChangeLog update is needed")
+
+        copy_changelog_with_build_tag(filename, build_filename, self.args.build_tag)
 
 
     # Build the module
@@ -128,6 +125,8 @@ class BuildMethod(base.BuildMethod):
 
         if ':' in version:
             version = version.split(':',1)[1]
+        if self.args.build_tag:
+            version += self.args.build_tag
 
         packages = []
         for package in control.sections:

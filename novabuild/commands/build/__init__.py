@@ -56,7 +56,7 @@ def build(module, args):
     return True
 
 
-def register_build_arguments(parser, config, force=True, recursive=True, revision_pattern=True):
+def register_build_arguments(parser, config, force=True, recursive=True, revision_pattern=True, build_tag=True):
     if force:
         parser.add_argument('-f', '--force', action='store_true',
                             help='force building even if already built')
@@ -68,7 +68,11 @@ def register_build_arguments(parser, config, force=True, recursive=True, revisio
         parser.add_argument('--revision-pattern', type=str,
                             help='pattern for building the build revision')
 
-    parser.set_defaults(force=False, recursive=False, revision_pattern='%s')
+    if build_tag:
+        parser.add_argument('--build-tag', type=str,
+                            help='Tag to append to the build revision')
+
+    parser.set_defaults(force=False, recursive=False, revision_pattern='%s', build_tag=None)
 
     if config.has_section('build'):
         parser.set_defaults(**dict(config.items('build')))

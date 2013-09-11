@@ -2,6 +2,7 @@
 
 import re
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -19,8 +20,8 @@ DEFAULT_EMAIL = "support@beip.be"
 # Pattern used in parsechangelog/debian:
 #   m/^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)((\s+[-+0-9a-z.]+)+)\;/i
 def parse_changelog_header(line):
-    matches = re.match('^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)', line, re.I)
-    return matches.group(1), matches.group(2)
+    matches = re.match('^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\) (.*)$', line, re.I)
+    return matches.group(1), matches.group(2), matches.group(3)
 
 
 def compare_versions(v1, op, v2):
@@ -30,7 +31,7 @@ def compare_versions(v1, op, v2):
 # Do we need to update the changelog?
 def changelog_is_up_to_date(filename, version):
     line = file(filename, 'r').readline()
-    lp, lv = parse_changelog_header(line)
+    lp, lv, ls = parse_changelog_header(line)
 
     # The changelog is up to date iff the old version is the same as the new one.
     if compare_versions(version, 'eq', lv):
@@ -99,8 +100,8 @@ CHANGELOG_TEMPLATE = u"""#
 
 
 # Update the changelog with a new entry.
-def prepend_changelog_entry(new_filename, old_filename, package, version):
-    last_entry = ''.join('# %s' % l for l in read_last_changelog_entry(old_filename))
+def prepend_changelog_entry(filename, package, version):
+    last_entry = ''.join('# %s' % l for l in read_last_changelog_entry(filename))
 
     text = CHANGELOG_TEMPLATE % { 'package': package,
                                   'version': version,
@@ -114,12 +115,39 @@ def prepend_changelog_entry(new_filename, old_filename, package, version):
     if not text:
         raise Exception("No changelog provided.")
 
-    fp = file(new_filename, 'w')
+    tmp_filename = filename + '.new'
+    fp = open(tmp_filename, 'w')
     fp.write("%s (%s) stable; urgency=low\n\n" % (package, version))
     fp.write(text)
     fp.write('\n')
 
     # ... and put the old content in.
-    fp2 = file(old_filename, 'r')
+    fp2 = open(filename, 'r')
     for line in fp2:
         fp.write(line)
+
+    fp2.close()
+    fp.close()
+
+    os.rename(tmp_filename, filename)
+
+# Copy the changelog, but alter the version number of the last entry to append
+# the build tag
+def copy_changelog_with_build_tag(srcfile, dstfile, build_tag):
+    # If there is no build tag, things are easy.
+    if not build_tag:
+        shutil.copy2(srcfile, dstfile)
+        return
+
+    # Otherwise...
+    sfp = open(srcfile, 'r')
+    fp = open(dstfile, 'w')
+
+    lp, lv, ls = parse_changelog_header(sfp.readline())
+    fp.write('%s (%s) %s' % (lp, lv + build_tag, ls))
+
+    for line in sfp:
+        fp.write(line)
+
+    sfp.close()
+    fp.close()
