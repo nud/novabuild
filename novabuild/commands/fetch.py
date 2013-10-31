@@ -11,6 +11,9 @@ def fetch(module):
         print blue("File already exists: '%s'" % module['Basename'])
         return False
 
+    if not os.path.exists('tarballs'):
+        os.mkdir('tarballs')
+
     source_type = module['Source-Type']
 
     if source_type == 'wget':
