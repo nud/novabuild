@@ -3,6 +3,7 @@
 import os, sys, glob, traceback
 from novabuild.run import system, check_code
 from novabuild.colours import red, blue
+from novabuild.debcontrol import PackageControlParser
 from exceptions import Exception
 
 
@@ -14,6 +15,40 @@ def get_build_method(module, args, quiet=False):
                           globals(), locals(), ["BuildMethod"])
     return pymodule.BuildMethod(args)
 
+def install_packages(packages_to_install, build_dir, module):
+    if not packages_to_install:
+        return
+
+    control = PackageControlParser()
+    control.read(os.path.join(build_dir, 'debian/control'))
+
+    # Make a list of packages
+    packages = [x['Package'] for x in control]
+
+    # Make a list of dependencies we didn't build ourselves
+    # FIXME: we skip the ${} for now.
+    dependencies = []
+    for package_info in control:
+        if package_info['Package'] in packages:
+            for dep in package_info.get('Depends', '').split(','):
+                dep = dep.strip().split(None, 1)[0]
+                if dep and not dep.startswith('$') and dep not in packages:
+                    dependencies.append(dep)
+
+    # Install said dependencies if there are any
+    if dependencies:
+        print blue("Installing dependencies for packages '%s'" % "', '".join(packages_to_install))
+        code = system('apt-get install %s' % ' '.join(dependencies), root=True)
+        check_code(code, module)
+
+    # Install built packages
+    print blue("Installing packages '%s'" % "', '".join(packages_to_install))
+    dpkg_args = []
+    for filename in glob.glob(os.path.join(os.path.dirname(build_dir), '*.deb')):
+        if os.path.basename(filename).split('_', 1)[0] in packages_to_install:
+            dpkg_args.append(filename)
+    code = system("dpkg -i %s" % ' '.join(dpkg_args), root=True)
+    check_code(code, module)
 
 def build(module, args):
     method = get_build_method(module, args)
@@ -40,14 +75,7 @@ def build(module, args):
     method.build_module(module, BUILD_DIR)
 
     if module['Install']:
-        packages_to_install = [i.strip() for i in module['Install'].split(',')]
-        if packages_to_install != []:
-            print blue("Installing packages '%s'" % "', '".join(packages_to_install))
-            packages = [os.path.basename(i) for i in glob.glob(os.path.join(TMP_BUILD_DIR, '*.deb'))]
-            packages = [os.path.join(TMP_BUILD_DIR, package) for package in packages
-                                                     if package.split('_', 1)[0] in packages_to_install]
-            code = system("dpkg -i %s" % ' '.join(packages), root=True)
-            check_code(code, module)
+        install_packages([i.strip() for i in module['Install'].split(',')], BUILD_DIR, module)
 
     repo_dir = 'repository-%s' % args.moduleset.name
     if not os.path.exists(repo_dir):
