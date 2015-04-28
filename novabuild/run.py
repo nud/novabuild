@@ -2,13 +2,22 @@
 
 import os
 import sys
+import subprocess
 from exceptions import Exception
 
 from colours import brown
 
-def system(cmd):
+def system(cmd, root=False, cwd=None): # FIXME
+    env =  os.environ.copy()
+
+    if root:
+        cmd = 'sudo ' + cmd
+
+    if cwd:
+        cmd = "cd %s; %s" % (cwd, cmd)
+
     print brown(cmd)
-    return os.system(cmd)
+    return subprocess.call(cmd, shell=True, env=env)
 
 def run(cmd, input = None):
     from subprocess import Popen, PIPE

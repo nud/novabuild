@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*- ex:set ts=4 et:
 
 import base
+import os
 
 from novabuild.run import system, check_code
 from novabuild.colours import blue
@@ -22,8 +23,8 @@ class BuildMethod(base.BuildMethod):
         self.setup_build_env(module, build_dir)
 
         print blue("Building linux kernel '%s'" % module['Version'])
-        cwd = self.args.chroot.abspath('~/tmp-build-dir/linux-%s' % module['Version'])
-        code = self.args.chroot.system('make-kpkg --revision=%s kernel_image kernel_headers kernel_source' % self.get_rev_tag(module),
+        cwd = os.path.expanduser('~/tmp-build-dir/linux-%s' % module['Version'])
+        code = system('make-kpkg --revision=%s kernel_image kernel_headers kernel_source' % self.get_rev_tag(module),
                                   cwd=cwd, root=True)
         check_code(code, module)
 

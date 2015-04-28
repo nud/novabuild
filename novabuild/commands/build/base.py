@@ -47,6 +47,6 @@ class BuildMethod(object):
 
     def module_is_built(self, module):
         for package in self.list_module_packages(module):
-            if not os.path.exists(os.path.join('repository-' + self.args.chroot.name, package)):
+            if not os.path.exists(os.path.join('repository-' + self.args.moduleset.name, package)):
                 return False
         return True

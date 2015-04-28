@@ -26,7 +26,7 @@ class BuildMethod(classic.BuildMethod):
                         "exec dpkg-buildpackage -rfakeroot -b -uc\n"])
 
     def save_wrapper_script(self):
-        path = self.args.chroot.abspath(self.wrapper_script, internal=False)
+        path = os.path.expanduser(self.wrapper_script, internal=False)
         file(path, 'w').write(self.get_wrapper_script())
 
     def setup_build_env(self, *args):
@@ -34,7 +34,7 @@ class BuildMethod(classic.BuildMethod):
         self.save_wrapper_script()
 
     def build(self, module):
-        cmd = 'sh ' + self.args.chroot.abspath(self.wrapper_script)
-        cwd = self.args.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
-        code = self.args.chroot.system(cmd, cwd=cwd)
+        cmd = 'sh ' + os.path.expanduser(self.wrapper_script)
+        cwd = os.path.expanduser('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
+        code = system(cmd, cwd=cwd)
         check_code(code, module)

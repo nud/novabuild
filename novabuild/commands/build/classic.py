@@ -56,7 +56,7 @@ class BuildMethod(base.BuildMethod):
     def install_dependencies(self, module, build_dir):
         deps = self.get_dependencies(build_dir)
         if deps:
-            code = self.args.chroot.system('apt-get install %s' % ' '.join(deps), root=True)
+            code = system('apt-get install %s' % ' '.join(deps), root=True)
             check_code(code, module)
 
 
@@ -84,8 +84,8 @@ class BuildMethod(base.BuildMethod):
 
     # Build the module
     def build(self, module):
-        cwd = self.args.chroot.abspath('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
-        code = self.args.chroot.system('dpkg-buildpackage -rfakeroot -b -uc', cwd=cwd)
+        cwd = os.path.expanduser('~/tmp-build-dir/%s-%s' % (module.name, module['Version']))
+        code = system('pwd; dpkg-buildpackage -rfakeroot -b -uc', cwd=cwd)
         check_code(code, module)
 
 

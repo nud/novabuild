@@ -12,15 +12,14 @@ To use Novabuild you first need to install the following dependencies:
 
   * python-argparse
   * python-jinja2
-  * schroot
   * sudo
 
 Then, install this package:
 
     $ python setup.py install
 
-Preparing the chroot
---------------------
+Preparing the virtual machine
+-----------------------------
 
 From within your novabuild repository, start preparing the chroot:
 

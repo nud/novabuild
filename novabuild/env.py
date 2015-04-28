@@ -9,6 +9,9 @@ def get_user_name():
     except TypeError:
         return None
 
+def get_home():
+    return os.getenv('HOME')
+
 def get_uid():
     try:
         return int(os.getenv('SUDO_UID') or os.getenv('UID'))

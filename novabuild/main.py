@@ -3,7 +3,6 @@
 
 import commands
 import env
-from chroot import Chroot
 from modules import ModuleSet
 
 import argparse
@@ -82,7 +81,7 @@ class ModuleSetFactory(object):
         env = RelEnvironment(loader=jinja2.FileSystemLoader('modulesets'))
         template = env.get_template(name)
 
-        moduleset = ModuleSet()
+        moduleset = ModuleSet(name)
         moduleset.readfp(template.render(**self._vars).splitlines())
         return moduleset
 
@@ -90,8 +89,6 @@ class ModuleSetFactory(object):
 def get_argument_parser(config):
     parser = argparse.ArgumentParser(prog="novabuild", description="Build Debian packages",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-c', '--chroot', dest='chroot', type=Chroot,
-                        help="chroot installation to use")
     parser.add_argument('-m', '--moduleset', dest='moduleset', type=ModuleSetFactory(config),
                         help="moduleset to use")
     parser.add_argument('-a', '--arch', dest='arch', type=str, default=None,
@@ -130,8 +127,5 @@ def main(args):
     except:
         traceback.print_exc()
         status = -1
-
-    if args.chroot is not None:
-        args.chroot.end_session()
 
     return status

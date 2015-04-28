@@ -28,10 +28,10 @@ def build(module, args):
             for i in dependencies:
                 build(args.moduleset[i], args)
 
-    BUILD_DIR = os.path.join(args.chroot.get_home_dir(), 'tmp-build-dir',
-                             '%s-%s' % (module.name, module['Version']))
+    TMP_BUILD_DIR = os.path.expanduser('~/tmp-build-dir')
+    BUILD_DIR = os.path.join(TMP_BUILD_DIR, '%s-%s' % (module.name, module['Version']))
 
-    code = args.chroot.system('rm -rf /home/%s/tmp-build-dir' % args.chroot.user, root=True)
+    code = system('rm -rf ' + os.path.expanduser('~/tmp-build-dir'), root=True)
     check_code(code, module)
 
     code = system('mkdir -p %s' % os.path.dirname(BUILD_DIR))
@@ -43,13 +43,13 @@ def build(module, args):
         packages_to_install = [i.strip() for i in module['Install'].split(',')]
         if packages_to_install != []:
             print blue("Installing packages '%s'" % "', '".join(packages_to_install))
-            packages = [os.path.basename(i) for i in glob.glob(args.chroot.abspath('~/tmp-build-dir/*.deb', internal=False))]
-            packages = [args.chroot.abspath('~/tmp-build-dir/%s' % package) for package in packages
+            packages = [os.path.basename(i) for i in glob.glob(os.path.join(TMP_BUILD_DIR, '*.deb'))]
+            packages = [os.path.join(TMP_BUILD_DIR, package) for package in packages
                                                      if package.split('_', 1)[0] in packages_to_install]
-            code = args.chroot.system("dpkg -i %s" % ' '.join(packages), root=True)
+            code = system("dpkg -i %s" % ' '.join(packages), root=True)
             check_code(code, module)
 
-    repo_dir = 'repository-%s' % args.chroot.name
+    repo_dir = 'repository-%s' % args.moduleset.name
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
     code = system('mv -f %s/*.deb %s/' % (os.path.dirname(BUILD_DIR), repo_dir))
