@@ -32,7 +32,7 @@ class BuildMethod(object):
         # Put the directory in the tarball in the right directory
         if not os.path.exists(destination):
             contents = os.listdir(dest_parent)
-            if len(contents) == 1 and os.path.isdir(contents[0]):
+            if len(contents) == 1 and os.path.isdir('%s/%s' % (dest_parent, contents[0])):
                 check_code(system('mv "%s/%s" %s' % (dest_parent, contents[0], destination)), module)
             else:
                 check_code(system('mkdir %s' % destination), module)
