@@ -21,7 +21,8 @@ Then, install this package:
 Preparing the virtual machine
 -----------------------------
 
-From within your novabuild repository, start preparing the chroot:
+From within your novabuild repository inside of the virtual machine, start
+preparing the environment:
 
     $ sudo novabuild prepare
 
